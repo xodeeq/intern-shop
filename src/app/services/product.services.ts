@@ -28,28 +28,23 @@ export class ProductService {
     "printer": { name: "printer", price: 249, stock: 15, brand: 'HP' }
   };
 
-
   getProduct(): Product[] {
     return Object.values(this.products);
   }
-
 
   getProductByName(name: string): Product | undefined {
     return this.products[name];
   }
 
-
   addProduct(key: string, product: Product) {
     this.products[key] = product;
   }
-
 
   updateStock(name: string, newStock: number) {
     if (this.products[name]) {
       this.products[name].stock = newStock;
     }
   }
-
 
   removeProduct(name: string) {
     delete this.products[name];
