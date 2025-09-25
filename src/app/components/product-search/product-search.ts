@@ -92,9 +92,7 @@ export class ProductSearch {
 
     this.productsearched.emit(this.reactiveForm.value.search);
     if (this.reactiveForm.value.search === '') { alert('Please enter a product name to search.'); return; }
-    else {
-      alert(`Searching for: ${this.reactiveForm.value.search}.....`)
-      if (this.productService.getProduct().some(p => p.name.toLowerCase() === this.reactiveForm.value.search.toLowerCase())) {
+    
         {
           this.findProduct();
           alert(`Product "${this.reactiveForm.value.search}" found! Check the console for details.`);
