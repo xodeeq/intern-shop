@@ -1,7 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Output, } from '@angular/core';
-import { FormControl, FormGroup, NgForm, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormArray, FormControl, FormGroup, NgForm, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ProductService } from '../../services/product.services';
+
 
 
 @Component({
@@ -12,9 +13,21 @@ import { ProductService } from '../../services/product.services';
   template: `
     <div class = "container">
       <form [formGroup]="reactiveForm" (ngSubmit)="onsubmit()">
-        <input type="text" placeholder="Search products..." class="form-control" formControlName = "search" pattern="^[a-zA-Z]+$" required=""/>
-
+        <div class="input-box">
+          <input class="form-control" type="text" placeholder="Search products..."  pattern="^[a-zA-Z]+$" required/>
+          <select class="form-control" formControlName = "search">
+            <option value="" disabled selected>Select a product....</option>
+            <option *ngFor="let product of products" [value]="product.name">
+              {{ product.name }}
+            </option>
+          </select>
+        </div>
+        
         <button class= "submit" type="submit">Search</button>
+        <div class="input-box" formArrayName="productFormArray">
+          <input type="text"  *ngFor="let control of productFormArray.controls; let i = index" [formControlName]="i" placeholder="Enter product {{i + 1}}.........." class="form-control" />
+          <button class="submit">Search</button>
+        </div>
         <br>
         @if (search?.dirty || search?.touched) {
         @if (search?.errors?.['required']) {
@@ -62,6 +75,11 @@ import { ProductService } from '../../services/product.services';
 })
 export class ProductSearch {
   reactiveForm: FormGroup;
+  products: any[] = [];
+
+  ngOnInit() {
+    this.products = this.productService.getProduct();
+  }
 
   @Output() productsearched = new EventEmitter<string>();
 
@@ -69,12 +87,24 @@ export class ProductSearch {
     this.reactiveForm = new FormGroup({
       search: new FormControl("", [
         Validators.required,
-        Validators.pattern("^[a-zA-Z]+$")])
+        Validators.pattern("^[a-zA-Z]+$")]),
+
+      productFormArray: new FormArray([
+        new FormControl(null, Validators.required),
+        new FormControl(null, Validators.required),
+        new FormControl(null, Validators.required),
+        new FormControl(null, Validators.required),
+      ])
+
     });
   }
 
   get search() {
     return this.reactiveForm.get('search');
+  }
+
+  get productFormArray(): FormArray {
+    return this.reactiveForm.get('productFormArray') as FormArray;
   }
 
   findProduct() {
@@ -93,7 +123,6 @@ export class ProductSearch {
     this.productsearched.emit(this.reactiveForm.value.search);
     if (this.reactiveForm.value.search === '') { alert('Please enter a product name to search.'); return; }
     else {
-      alert(`Searching for: ${this.reactiveForm.value.search}.....`)
       if (this.productService.getProduct().some(p => p.name.toLowerCase() === this.reactiveForm.value.search.toLowerCase())) {
         {
           this.findProduct();
