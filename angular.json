@@ -49,7 +49,9 @@
               }
             ],
             "styles": [
+              "node_modules/ionicons/dist/css/ionicons.min.css",
               "src/styles.css"
+
             ]
           },
           "configurations": {
