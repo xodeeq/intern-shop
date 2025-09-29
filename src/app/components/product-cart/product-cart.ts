@@ -165,6 +165,42 @@ export class ProductCart {
       price: 1200.00,
       quantity: 53,
       image: "https://tse3.mm.bing.net/th/id/OIP.xZGkTQ3grFSh1zI1z9WTewHaJn?rs=1&pid=ImgDetMain&o=7&rm=3"
+    },
+    {
+      name: "Blue Denim Jacket",
+      variant: "Denim",
+      size: "M",
+      color: "Blue",
+      price: 750.00,
+      quantity: 41,
+      image: "https://tse3.mm.bing.net/th/id/OIP.xZGkTQ3grFSh1zI1z9WTewHaJn?rs=1&pid=ImgDetMain&o=7&rm=3"
+    },
+    {
+      name: "Red Leather Jacket",
+      variant: "Fierce",
+      size: "S",
+      color: "Red",
+      price: 1500.00,
+      quantity: 29,
+      image: "https://tse3.mm.bing.net/th/id/OIP.xZGkTQ3grFSh1zI1z9WTewHaJn?rs=1&pid=ImgDetMain&o=7&rm=3"
+    },
+    {
+      name: "Green Parka Jacket",
+      variant: "Forest",
+      size: "M",
+      color: "Green",
+      price: 1100.00,
+      quantity: 47,
+      image: "https://tse3.mm.bing.net/th/id/OIP.xZGkTQ3grFSh1zI1z9WTewHaJn?rs=1&pid=ImgDetMain&o=7&rm=3"
+    },
+    {
+      name: "Grey Wool Jacket",
+      variant: "Urban",
+      size: "L",
+      color: "Grey",
+      price: 1300.00,
+      quantity: 38,
+      image: "https://tse3.mm.bing.net/th/id/OIP.xZGkTQ3grFSh1zI1z9WTewHaJn?rs=1&pid=ImgDetMain&o=7&rm=3"
     }
   ];
 
