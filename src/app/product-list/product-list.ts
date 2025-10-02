@@ -1,91 +1,93 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
+import { ProductService, Product } from '../services/product.service';
+import { ProductCard } from '../product-card/product-card';
 
 @Component({
   selector: 'app-product-list',
-  imports: [CommonModule],
+  standalone: true,
+  imports: [CommonModule, ProductCard],
   template: `
-    <div class="shop"><h2>SHOP</h2></div>
+    <div class="shop">
+      <h2>SHOP</h2>
+    </div>
+
     <div class="product-list">
-      <div class="product-card" *ngFor="let product of products">
-        <h3>{{ product.name }}</h3>
-        <div class="img1"><img src="/assets/laptop.jpg" alt="laptop" /></div>
-        <p class="price">Price: ₦{{ product.price }}</p>
-        <button (click)="addToCart(product)">Add to Cart</button>
-      </div>
+      <app-product-card
+        *ngFor="let product of products"
+        [product]="product">
+      </app-product-card>
     </div>
   `,
-  styles: ` 
-.shop{
-    text-align: center;
-    color: #000000;
-    font-family: Arial, sans-serif;
-}
-    
-  
-  .product-list h2{
-    text-align: center;
-    color: #000000;
-    font-family: Arial, sans-serif;
-  }
-  .product-list{
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-    justify-content: center;
-    
-  }
-  .product-card{
-    display:flex;
-    flex-direction: column;
-    border: 1px solid #ddd;
-  border-radius: 8px;
-  padding: 30px;
-  margin: 10px;
-  width: 200px;
-  height: 350px;
-  
+  styles: [`
+    .shop {
+      text-align: center;
+      margin: 20px 0;
+      font-family: Arial, sans-serif;
+    }
 
-}
-    
-  
-  button{
-    padding: 10px 20px;
-    background-color: #1753e2c6;
-    color: white;
-    font-weight: bold;
-    width: 200px;
-    height: 50px;
-    font-size: 12px
-    border-radius: 200px;
-    border: none;
-    cursor: pointer;
-  }
-   button:hover{
-    background-color: #0f3ea6;
-  }
+    .product-list {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr); 
+      gap: 20px;
+      max-width: 1200px;
+      margin: 0 auto; 
+      padding: 20px;
+    }
 
-  
-  .img1 img{
-    width: 150px;
-    height: 150px;
-  }
-  
-  
-  `,
+    .product-card {
+      background: white;
+      border: 1px solid #eee;
+      border-radius: 8px;
+      padding: 16px;
+      text-align: center;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+      transition: transform 0.2s ease;
+    }
+
+    
+
+    .product-card img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      border-radius: 6px;
+      margin-bottom: 12px;
+    }
+
+    .product-card h3 {
+      font-size: 80px;
+      margin: 10px 0 5px;
+      font-weight: 500;
+    }
+
+    .product-card .price {
+      font-size: 15px;
+      font-weight: bold;
+      margin-bottom: 15px;
+      color: #333;
+    }
+
+    .product-card button {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      width: 100%;
+    }
+
+    .product-card button:hover {
+      background-color: #0056b3;
+    }
+  `],
 })
 export class ProductList {
-  products = [
-    { id: 1, name: 'Laptop', price: 150000 },
-    { id: 2, name: 'Smartphone', price: 50000 },
-    { id: 3, name: 'Tablet', price: 30000 },
-    { id: 4, name: 'Headphones', price: 5000 },
-    { id: 5, name: 'Camera', price: 45000 },
-    { id: 5, name: 'Printer', price: 12000 },
-    { id: 7, name: 'Monitor', price: 25000 },
-    { id: 8, name: 'Keyboard', price: 3000 },
-  ];
-  addToCart(product: { name: string; price: number }) {
-    console.log(`${product.name} added to cart!`);
+  products: Product[] = [];
+
+  constructor(private productService: ProductService) {
+    this.products = this.productService.getProducts();
   }
 }

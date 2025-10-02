@@ -1,10 +1,11 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Output, output } from '@angular/core';
 import { FormControl, FormGroup, NgForm, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ProductService } from '../services/product.service';
+import { ProductService, Product } from '../services/product.service';
 
 @Component({
   selector: 'app-product-search',
+  standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
   providers: [ProductService],
   template: `
@@ -89,8 +90,8 @@ export class ProductSearch {
     let valid = false;
     if (searchValue && typeof searchValue === 'string') {
       valid = this.productService
-        .getProduct()
-        .some((p) => p.name.toLowerCase() === searchValue.toLowerCase());
+        .getProducts()
+        .some((p: Product) => p.name.toLowerCase() === searchValue.toLowerCase());
     }
     this.productsearched.emit({ name: searchValue, valid });
     if (!searchValue) {

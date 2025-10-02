@@ -6,7 +6,7 @@ import { ProductList } from './product-list/product-list';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, ProductSearch, QuantityComponent, ProductList],
+  imports: [RouterOutlet, ProductList],
   template: `
     <h1 class="header">Welcome to Products Store!</h1>
     <!-- <app-product-search (productsearched)="handleProductSearch($event)"></app-product-search>

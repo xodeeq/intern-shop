@@ -16,20 +16,19 @@ export type ProductDictionary = {
 })
 export class ProductService {
   private products: ProductDictionary = {
-    "phone": { name: "phone", price: 699, stock: 50, brand: 'Samsung' },
-    "tablet": { name: "tablet", price: 799, stock: 23, brand: 'Apple' },
-    "laptop": { name: "laptop", price: 1299, stock: 75, brand: 'Dell' },
-    "monitor": { name: "monitor", price: 199, stock: 18, brand: 'LG' },
-    "headphones": { name: "headphones", price: 99, stock: 25, brand: 'Sony' },
-    "smartwatch": { name: "smartwatch", price: 299, stock: 34, brand: 'Samsung' },
-   "router" : { name: "router", price: 149, stock: 12, brand: 'TP-Link' },
-    "camera":{ name: "camera", price: 499, stock: 8, brand: 'Canon' },
-    "speaker": { name: "speaker", price: 129, stock: 40, brand: 'Bose' },
-    "printer": { name: "printer", price: 249, stock: 15, brand: 'HP' }
+    "phone": { name: "Phone", price: 699, stock: 50, brand: 'Samsung' },
+    "tablet": { name: "Tablet", price: 799, stock: 23, brand: 'Apple' },
+    "laptop": { name: "Laptop", price: 1299, stock: 75, brand: 'Dell' },
+    "monitor": { name: "Monitor", price: 199, stock: 18, brand: 'LG' },
+    "headphones": { name: "Headphones", price: 99, stock: 25, brand: 'Sony' },
+    "smartwatch": { name: "Smartwatch", price: 299, stock: 34, brand: 'Samsung' },
+   "router" : { name: "Router", price: 149, stock: 12, brand: 'TP-Link' },
+    "camera":{ name: "Camera", price: 499, stock: 8, brand: 'Canon' },
+    
   };
 
   
-  getProduct(): Product[] {
+  getProducts(): Product[] {
     return Object.values(this.products);
   }
 
