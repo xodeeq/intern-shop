@@ -2,15 +2,17 @@ import { Component, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { ProductSearch } from './components/product-search/product-search';
 import { ProductCart } from './components/product-cart/product-cart';
+import { ProductList } from "./components/product-list/product-list";
 
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, ProductCart],
+  imports: [RouterOutlet, ProductCart, ProductList],
   template: `
   <div class="general">
     <h1 class="header">Welcome to Products Store!</h1>
     <!-- <app-product-search (productsearched)="handleProductSearch($event)"></app-product-search> -->
+    <app-product-list></app-product-list>
     <app-product-cart></app-product-cart>
     <router-outlet />
   </div>
