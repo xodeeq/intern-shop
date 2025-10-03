@@ -5,6 +5,7 @@ export interface Product {
   price: number;
   brand: string;
   stock: number;
+  image: string;
 }
 
 export type ProductDictionary = {
@@ -16,16 +17,16 @@ export type ProductDictionary = {
 })
 export class ProductService {
   private products: ProductDictionary = {
-    "phone": { name: "phone", price: 699, stock: 50, brand: 'Samsung' },
-    "tablet": { name: "tablet", price: 799, stock: 23, brand: 'Apple' },
-    "laptop": { name: "laptop", price: 1299, stock: 75, brand: 'Dell' },
-    "monitor": { name: "monitor", price: 199, stock: 18, brand: 'LG' },
-    "headphones": { name: "headphones", price: 99, stock: 25, brand: 'Sony' },
-    "smartwatch": { name: "smartwatch", price: 299, stock: 34, brand: 'Samsung' },
-    "router": { name: "router", price: 149, stock: 12, brand: 'TP-Link' },
-    "camera": { name: "camera", price: 499, stock: 8, brand: 'Canon' },
-    "speaker": { name: "speaker", price: 129, stock: 40, brand: 'Bose' },
-    "printer": { name: "printer", price: 249, stock: 15, brand: 'HP' }
+    "phone": { name: "phone", price: 699, stock: 50, brand: 'Samsung', image: "https://tse3.mm.bing.net/th/id/OIP.xZGkTQ3grFSh1zI1z9WTewHaJn?rs=1&pid=ImgDetMain&o=7&rm=3" },
+    "tablet": { name: "tablet", price: 799, stock: 23, brand: 'Apple', image: "https://tse3.mm.bing.net/th/id/OIP.xZGkTQ3grFSh1zI1z9WTewHaJn?rs=1&pid=ImgDetMain&o=7&rm=3" },
+    "laptop": { name: "laptop", price: 1299, stock: 75, brand: 'Dell', image: "https://tse3.mm.bing.net/th/id/OIP.xZGkTQ3grFSh1zI1z9WTewHaJn?rs=1&pid=ImgDetMain&o=7&rm=3" },
+    "monitor": { name: "monitor", price: 199, stock: 18, brand: 'LG', image: "https://tse3.mm.bing.net/th/id/OIP.xZGkTQ3grFSh1zI1z9WTewHaJn?rs=1&pid=ImgDetMain&o=7&rm=3" },
+    "headphones": { name: "headphones", price: 99, stock: 25, brand: 'Sony', image: "https://tse3.mm.bing.net/th/id/OIP.xZGkTQ3grFSh1zI1z9WTewHaJn?rs=1&pid=ImgDetMain&o=7&rm=3" },
+    "smartwatch": { name: "smartwatch", price: 299, stock: 34, brand: 'Samsung', image: "https://tse3.mm.bing.net/th/id/OIP.xZGkTQ3grFSh1zI1z9WTewHaJn?rs=1&pid=ImgDetMain&o=7&rm=3" },
+    "router": { name: "router", price: 149, stock: 12, brand: 'TP-Link', image: "https://tse3.mm.bing.net/th/id/OIP.xZGkTQ3grFSh1zI1z9WTewHaJn?rs=1&pid=ImgDetMain&o=7&rm=3" },
+    "camera": { name: "camera", price: 499, stock: 8, brand: 'Canon', image: "https://tse3.mm.bing.net/th/id/OIP.xZGkTQ3grFSh1zI1z9WTewHaJn?rs=1&pid=ImgDetMain&o=7&rm=3" },
+    "speaker": { name: "speaker", price: 129, stock: 40, brand: 'Bose', image: "https://tse3.mm.bing.net/th/id/OIP.xZGkTQ3grFSh1zI1z9WTewHaJn?rs=1&pid=ImgDetMain&o=7&rm=3" },
+    "printer": { name: "printer", price: 249, stock: 15, brand: 'HP', image: "https://tse3.mm.bing.net/th/id/OIP.xZGkTQ3grFSh1zI1z9WTewHaJn?rs=1&pid=ImgDetMain&o=7&rm=3" }
   };
 
   getProduct(): Product[] {

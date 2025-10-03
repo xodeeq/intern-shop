@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule, NgFor, NgForOf, NgIf } from '@angular/common';
+import { CartItem, CartService } from '../../services/cart.service';
 
 
 @Component({
@@ -10,18 +11,18 @@ import { CommonModule, NgFor, NgForOf, NgIf } from '@angular/common';
   <div class="container">
     <h2 class="class-header">Cart</h2>
     <div *ngFor="let item of cart" class="cart-item">
-      <img [src]="item.image" alt="{{item.name}}" class="cart-image" />
+      <img [src]="item.image" alt="{{item.choice}}" class="cart-image" />
 
       <div class="item-details">
-        <h3 class="item-name">{{ item.name }}</h3>
+        <h3 class="item-name">{{ item.choice }}</h3>
         <div class="item-sub-details">
-          <p class="item-subs">Variant: {{item.variant}}</p>
-          <p class="item-subs">Size: {{item.size}}</p>
-          <p class="item-subs">Color: {{item.color}}</p>
+          <p class="item-subs">Other details</p>
+          <p class="item-subs">Other details</p>
+          <p class="item-subs">Other details</p>
         </div>
       </div>
 
-      <!-- ✅ Actions on the right -->
+  
       <div class="cart-actions">
         <div class="price">{{ item.price | currency:'NGN':'symbol-narrow':'1.0-0' }}</div>
 
@@ -32,11 +33,14 @@ import { CommonModule, NgFor, NgForOf, NgIf } from '@angular/common';
         </div>
 
         <div class="icons">
-          <span class="icon">♡</span>
+          <span class="icon" >♡</span>
           <span class="icon" (click)="remove(item)">🗑</span>
         </div>
       </div>
     </div>
+
+    <h3 *ngIf="totalPrice > 0">Total: {{ totalPrice | currency:'NGN' }}</h3>
+    <h3 *ngIf="totalPrice === 0">Your cart is empty.</h3>
   </div>
 `,
   styles: [`
@@ -135,84 +139,36 @@ import { CommonModule, NgFor, NgForOf, NgIf } from '@angular/common';
 `]
 
 })
-export class ProductCart {
+export class ProductCart implements OnInit {
 
-  cart = [
+  cart: CartItem[] = [];
+  totalPrice: number = 0;
 
-    {
-      name: "Black Jacket Puffed",
-      variant: "Agora",
-      size: "XXL",
-      color: "Black",
-      price: 499.00,
-      quantity: 63,
-      image: "https://tse3.mm.bing.net/th/id/OIP.xZGkTQ3grFSh1zI1z9WTewHaJn?rs=1&pid=ImgDetMain&o=7&rm=3"
-    },
-    {
-      name: "Women White Jacket",
-      variant: "Allure",
-      size: "XL",
-      color: "Smokie white",
-      price: 1000.00,
-      quantity: 36,
-      image: "https://tse3.mm.bing.net/th/id/OIP.xZGkTQ3grFSh1zI1z9WTewHaJn?rs=1&pid=ImgDetMain&o=7&rm=3"
-    },
-    {
-      name: "Orange Full Wear",
-      variant: "Vibe",
-      size: "L",
-      color: "Orange",
-      price: 1200.00,
-      quantity: 53,
-      image: "https://tse3.mm.bing.net/th/id/OIP.xZGkTQ3grFSh1zI1z9WTewHaJn?rs=1&pid=ImgDetMain&o=7&rm=3"
-    },
-    {
-      name: "Blue Denim Jacket",
-      variant: "Denim",
-      size: "M",
-      color: "Blue",
-      price: 750.00,
-      quantity: 41,
-      image: "https://tse3.mm.bing.net/th/id/OIP.xZGkTQ3grFSh1zI1z9WTewHaJn?rs=1&pid=ImgDetMain&o=7&rm=3"
-    },
-    {
-      name: "Red Leather Jacket",
-      variant: "Fierce",
-      size: "S",
-      color: "Red",
-      price: 1500.00,
-      quantity: 29,
-      image: "https://tse3.mm.bing.net/th/id/OIP.xZGkTQ3grFSh1zI1z9WTewHaJn?rs=1&pid=ImgDetMain&o=7&rm=3"
-    },
-    {
-      name: "Green Parka Jacket",
-      variant: "Forest",
-      size: "M",
-      color: "Green",
-      price: 1100.00,
-      quantity: 47,
-      image: "https://tse3.mm.bing.net/th/id/OIP.xZGkTQ3grFSh1zI1z9WTewHaJn?rs=1&pid=ImgDetMain&o=7&rm=3"
-    },
-    {
-      name: "Grey Wool Jacket",
-      variant: "Urban",
-      size: "L",
-      color: "Grey",
-      price: 1300.00,
-      quantity: 38,
-      image: "https://tse3.mm.bing.net/th/id/OIP.xZGkTQ3grFSh1zI1z9WTewHaJn?rs=1&pid=ImgDetMain&o=7&rm=3"
+  constructor(private Cartservice: CartService) { }
+
+  ngOnInit(): void {
+    this.Cartservice.cartUpdates$.subscribe(updatedCart => {
+      this.cart = updatedCart;
+    });
+
+    this.Cartservice.totalPriceUpdates$.subscribe(updatedTotal => {
+      this.totalPrice = updatedTotal;
+    });
+  }
+
+  increase(item: CartItem) {
+    this.Cartservice.updateCart(item.choice, item.quantity + 1);
+  }
+
+  decrease(item: CartItem) {
+    if (item.quantity > 1) {
+      this.Cartservice.updateCart(item.choice, item.quantity - 1);
     }
-  ];
-
-  increase(item: any) {
-    item.quantity++;
   }
 
-  decrease(item: any) {
-    if (item.quantity > 1) item.quantity--;
+  remove(item: CartItem) {
+    this.Cartservice.removeFromCart(item.choice);
   }
 
-  remove(item: any) {
-    this.cart = this.cart.filter(p => p !== item);
-  }
+
 }

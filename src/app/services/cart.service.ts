@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
 import { ProductService } from './product.services';
+import { BehaviorSubject } from 'rxjs';
 
 
 
-export interface CartItem { choice: string; quantity: number; }
+export interface CartItem { choice: string; quantity: number; price: number; image: string; }
 
 
 
@@ -13,7 +14,17 @@ export interface CartItem { choice: string; quantity: number; }
 export class CartService {
   cart: CartItem[] = [];
 
+
   totalPrice: number = 0;
+
+  private cartUpdate = new BehaviorSubject<CartItem[]>([]);
+  cartUpdates$ = this.cartUpdate.asObservable();
+
+  private totalPriceUpdate = new BehaviorSubject<number>(0);
+  totalPriceUpdates$ = this.totalPriceUpdate.asObservable();
+
+
+
 
   constructor(private productService: ProductService) { }
 
@@ -33,11 +44,14 @@ export class CartService {
     if (existingItem) {
       existingItem.quantity += quantity;
     } else {
-      this.cart.push({ choice: product.name, quantity });
+      this.cart.push({ choice: product.name, quantity, price: product.price, image: product.image });
     }
 
     product.stock -= quantity;
     this.totalPrice += product.price * quantity;
+
+    this.cartUpdate.next(this.cart);
+    this.totalPriceUpdate.next(this.totalPrice);
 
     return `✅ Added ${quantity} ${productKey}(s) to the cart.`;
 
@@ -68,6 +82,10 @@ export class CartService {
       this.totalPrice -= product.price * Math.abs(difference);
     }
     item.quantity = newQuantity;
+
+    this.cartUpdate.next(this.cart);
+    this.totalPriceUpdate.next(this.totalPrice);
+
     return `✅ Updated ${productKey} quantity to ${newQuantity}.`;
   }
 
@@ -82,6 +100,9 @@ export class CartService {
     product.stock += item.quantity;
     this.totalPrice -= product.price * item.quantity;
     this.cart.splice(itemIndex, 1);
+
+    this.cartUpdate.next(this.cart);
+    this.totalPriceUpdate.next(this.totalPrice);
 
     return `✅ Removed ${productKey} from the cart.`;
   }
@@ -103,4 +124,7 @@ export class CartService {
     // return total;
 
   }
+
+
 }
+
