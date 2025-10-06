@@ -88,6 +88,6 @@ export class ProductList {
   products: Product[] = [];
 
   constructor(private productService: ProductService) {
-    this.products = this.productService.getProducts();
+    this.products = this.productService.getProduct();
   }
 }

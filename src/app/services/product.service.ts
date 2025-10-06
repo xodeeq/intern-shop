@@ -5,6 +5,7 @@ export interface Product {
   price: number;
   brand: string;
   stock: number;
+  image: string;
 }
 
 export type ProductDictionary = {
@@ -16,19 +17,19 @@ export type ProductDictionary = {
 })
 export class ProductService {
   private products: ProductDictionary = {
-    "phone": { name: "Phone", price: 699, stock: 50, brand: 'Samsung' },
-    "tablet": { name: "Tablet", price: 799, stock: 23, brand: 'Apple' },
-    "laptop": { name: "Laptop", price: 1299, stock: 75, brand: 'Dell' },
-    "monitor": { name: "Monitor", price: 199, stock: 18, brand: 'LG' },
-    "headphones": { name: "Headphones", price: 99, stock: 25, brand: 'Sony' },
-    "smartwatch": { name: "Smartwatch", price: 299, stock: 34, brand: 'Samsung' },
-   "router" : { name: "Router", price: 149, stock: 12, brand: 'TP-Link' },
-    "camera":{ name: "Camera", price: 499, stock: 8, brand: 'Canon' },
+    "phone": { name: "Phone", price: 699, stock: 50, brand: 'Samsung', image: 'https://tse3.mm.bing.net/th/id/OIP.xZGkTQ3grFSh1zI1z9WTewHaJn?rs=1&pid=ImgDetMain&o=7&rm=3'},
+    "tablet": { name: "Tablet", price: 799, stock: 23, brand: 'Apple', image: 'https://tse3.mm.bing.net/th/id/OIP.xZGkTQ3grFSh1zI1z9WTewHaJn?rs=1&pid=ImgDetMain&o=7&rm=3' },
+    "laptop": { name: "Laptop", price: 1299, stock: 75, brand: 'Dell', image: 'https://tse3.mm.bing.net/th/id/OIP.xZGkTQ3grFSh1zI1z9WTewHaJn?rs=1&pid=ImgDetMain&o=7&rm=3' },
+    "monitor": { name: "Monitor", price: 199, stock: 18, brand: 'LG', image: 'https://tse3.mm.bing.net/th/id/OIP.xZGkTQ3grFSh1zI1z9WTewHaJn?rs=1&pid=ImgDetMain&o=7&rm=3' },
+    "headphones": { name: "Headphones", price: 99, stock: 25, brand: 'Sony', image: 'https://tse3.mm.bing.net/th/id/OIP.xZGkTQ3grFSh1zI1z9WTewHaJn?rs=1&pid=ImgDetMain&o=7&rm=3' },
+    "smartwatch": { name: "Smartwatch", price: 299, stock: 34, brand: 'Samsung', image: 'https://tse3.mm.bing.net/th/id/OIP.xZGkTQ3grFSh1zI1z9WTewHaJn?rs=1&pid=ImgDetMain&o=7&rm=3' },
+   "router" : { name: "Router", price: 149, stock: 12, brand: 'TP-Link', image: 'https://tse3.mm.bing.net/th/id/OIP.xZGkTQ3grFSh1zI1z9WTewHaJn?rs=1&pid=ImgDetMain&o=7&rm=3' },
+    "camera":{ name: "Camera", price: 499, stock: 8, brand: 'Canon', image: 'https://tse3.mm.bing.net/th/id/OIP.xZGkTQ3grFSh1zI1z9WTewHaJn?rs=1&pid=ImgDetMain&o=7&rm=3' },
     
   };
 
   
-  getProducts(): Product[] {
+  getProduct(): Product[] {
     return Object.values(this.products);
   }
 

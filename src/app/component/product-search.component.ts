@@ -90,7 +90,7 @@ export class ProductSearch {
     let valid = false;
     if (searchValue && typeof searchValue === 'string') {
       valid = this.productService
-        .getProducts()
+        .getProduct()
         .some((p: Product) => p.name.toLowerCase() === searchValue.toLowerCase());
     }
     this.productsearched.emit({ name: searchValue, valid });

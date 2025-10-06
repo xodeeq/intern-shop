@@ -127,7 +127,7 @@ export class QuantityComponent {
 
   checkStock() {
     const product = this.productService
-      .getProducts()
+      .getProduct()
       .find((p) => p.name.trim().toLowerCase().includes(this.productName.trim().toLowerCase()));
     if (product) {
       this.currentStock = product.stock;
@@ -146,7 +146,7 @@ export class QuantityComponent {
     }
 
     const product = this.productService
-      .getProducts()
+      .getProduct()
       .find((p) => p.name.trim().toLowerCase().includes(this.productName.trim().toLowerCase()));
 
     if (!product) {
@@ -164,7 +164,7 @@ export class QuantityComponent {
     this.quantityExceedsStock = false;
     console.log(`Added ${this.quantity} of ${product.name} to cart!`);
   }
-  
+
   ngDoCheck() {
     this.checkStock();
   }
