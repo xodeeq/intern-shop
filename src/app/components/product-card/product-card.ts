@@ -14,7 +14,9 @@ import { Product } from '../../services/product.services';
       
       <img [src]="product.image" alt="{{product.name}}" />
 
-      <p class="price">Price: ₦{{ product.price }} | Stock: {{ product.stock }}</p>
+       <p>Brand: {{ product.brand }}</p>
+        <p>Price: {{ product.price | currency:'NGN' }}</p>
+        <p>Stock: {{ product.stock }}</p>
       <button (click)="addToCart()">Add to Cart</button>
     </div>
   `,
