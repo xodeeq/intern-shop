@@ -2,15 +2,16 @@ import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { CartService } from '../../services/cart.service';
 import { Product } from '../../services/product.services';
+import { CapitalizeAndSpacePipe } from '../../pipes/capitalize-and-space-pipe';
 
 
 @Component({
   selector: 'app-product-card',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, CapitalizeAndSpacePipe],
   template: `
     <div class="product-card">
-      <h3>{{ product.name }}</h3>
+      <h3>{{ product.name | capitalizeAndSpace }}</h3>
       
       <img [src]="product.image" alt="{{product.name}}" />
 

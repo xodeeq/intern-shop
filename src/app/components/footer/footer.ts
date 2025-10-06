@@ -1,11 +1,12 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { ProductService } from '../../services/product.services';
+import { CapitalizeAndSpacePipe } from '../../pipes/capitalize-and-space-pipe';
 
 @Component({
   selector: 'app-footer',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, CapitalizeAndSpacePipe],
   template: `
   <head><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" crossorigin="anonymous" referrerpolicy="no-referrer" /></head>
     <footer class="footer">
@@ -38,7 +39,7 @@ import { ProductService } from '../../services/product.services';
           <h3>Categories</h3>
           <ul>
             <li *ngFor="let category of categories">
-              <a href="#"  (click)="onCategoryClick(category)">{{ category }}</a>
+              <a href="#"  (click)="onCategoryClick(category)">{{ category | capitalizeAndSpace }}</a>
             </li>
           </ul>
         </div>
