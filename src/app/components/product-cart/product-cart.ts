@@ -1,20 +1,21 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule, NgFor, NgForOf, NgIf } from '@angular/common';
 import { CartItem, CartService } from '../../services/cart.service';
+import { CapitalizeAndSpacePipe } from '../../pipes/capitalize-and-space-pipe';
 
 
 @Component({
   selector: 'app-product-cart',
-  imports: [CommonModule,],
+  imports: [CommonModule, CapitalizeAndSpacePipe],
   standalone: true,
   template: `
   <div class="container">
     <h2 class="class-header">Cart</h2>
     <div *ngFor="let item of cart" class="cart-item">
-      <img [src]="item.image" alt="{{item.choice}}" class="cart-image" />
+      <img [src]="item.image" alt="{{item.choice | capitalizeAndSpace}}" class="cart-image" />
 
       <div class="item-details">
-        <h3 class="item-name">{{ item.choice }}</h3>
+        <h3 class="item-name">{{ item.choice | capitalizeAndSpace}}</h3>
         <div class="item-sub-details">
           <p class="item-subs">Other details</p>
           <p class="item-subs">Other details</p>

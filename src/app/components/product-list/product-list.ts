@@ -3,11 +3,13 @@ import { Component, Input, OnInit, SimpleChanges } from '@angular/core';
 import { ProductCard } from '../product-card/product-card';
 import { Product, ProductService } from '../../services/product.services';
 import { FormsModule } from '@angular/forms';
+import { CapitalizeAndSpacePipe } from '../../pipes/capitalize-and-space-pipe';
+
 
 @Component({
   selector: 'app-product-list',
   standalone: true,
-  imports: [CommonModule, ProductCard, FormsModule],
+  imports: [CommonModule, ProductCard, FormsModule, CapitalizeAndSpacePipe],
   template: `
     <div class="shop">
       <h2>SHOP</h2>
@@ -16,7 +18,7 @@ import { FormsModule } from '@angular/forms';
      <select [(ngModel)]="selectedCategory" (change)="filterProducts()">
         <option value="all" >All Categories</option>
         <option *ngFor="let category of categories" [value]="category">
-          {{ category }}
+          {{ category | capitalizeAndSpace }}
         </option>
       </select>
 
