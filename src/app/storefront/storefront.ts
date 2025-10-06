@@ -13,6 +13,7 @@ import { Checkout } from './checkout';
   `,
   styles: ``
 })
+
 export class Storefront {
 
 }

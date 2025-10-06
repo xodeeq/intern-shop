@@ -3,17 +3,19 @@ import { RouterOutlet } from '@angular/router';
 import { ProductSearch } from './components/product-search/product-search';
 import { ProductCart } from './components/product-cart/product-cart';
 import { ProductList } from "./components/product-list/product-list";
+import { Footer } from './components/footer/footer';
 
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, ProductCart, ProductList],
+  imports: [RouterOutlet, ProductCart, ProductList, Footer],
   template: `
   <div class="general">
     <h1 class="header">Welcome to Products Store!</h1>
     <!-- <app-product-search (productsearched)="handleProductSearch($event)"></app-product-search> -->
-    <app-product-list></app-product-list>
+    <app-product-list [selectedCategory]="selectedCategory"></app-product-list>
     <app-product-cart></app-product-cart>
+     <app-footer (categorySelected)="onCategorySelected($event)"></app-footer>
     <router-outlet />
   </div>
   `,
@@ -47,5 +49,12 @@ export class App {
 
   handleProductSearch(event: string) {
     console.log('Product searched:', event);
+  }
+
+
+  selectedCategory: string = 'all';
+
+  onCategorySelected(category: string) {
+    this.selectedCategory = category;
   }
 }

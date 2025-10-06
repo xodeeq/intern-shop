@@ -1,20 +1,28 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, Input, OnInit, SimpleChanges } from '@angular/core';
 import { ProductCard } from '../product-card/product-card';
 import { Product, ProductService } from '../../services/product.services';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-product-list',
   standalone: true,
-  imports: [CommonModule, ProductCard],
+  imports: [CommonModule, ProductCard, FormsModule],
   template: `
     <div class="shop">
       <h2>SHOP</h2>
     </div>
 
+     <select [(ngModel)]="selectedCategory" (change)="filterProducts()">
+        <option value="all" >All Categories</option>
+        <option *ngFor="let category of categories" [value]="category">
+          {{ category }}
+        </option>
+      </select>
+
     <div class="product-list">
       <app-product-card
-        *ngFor="let product of products"
+        *ngFor="let product of filteredProducts"
         [product]="product">
       </app-product-card>
     </div>
@@ -24,6 +32,14 @@ import { Product, ProductService } from '../../services/product.services';
       text-align: center;
       margin: 20px 0;
       font-family: Arial, sans-serif;
+    }
+
+    select { margin-bottom: 20px; padding: 5px; border: none; margin-left: 8%;}
+
+    option{
+      background: #fff;
+      border : none;
+      height: 150%;
     }
 
     .product-list {
@@ -84,10 +100,29 @@ import { Product, ProductService } from '../../services/product.services';
     }
   `],
 })
-export class ProductList {
+export class ProductList implements OnInit {
+  @Input() selectedCategory: string = 'all';  // ✅ Step 1: Add this Input
+
   products: Product[] = [];
+  categories: string[] = [];
+  filteredProducts: Product[] = [];
 
   constructor(private productService: ProductService) {
     this.products = this.productService.getProduct();
+  }
+
+  ngOnInit() {
+    this.categories = this.productService.getCategories();
+    this.filterProducts();
+  }
+
+  ngOnChanges(changes: SimpleChanges) {   // ✅ Step 2: React when footer updates category
+    if (changes['selectedCategory']) {
+      this.filterProducts();
+    }
+  }
+
+  filterProducts() {
+    this.filteredProducts = this.productService.getProductsByCategory(this.selectedCategory);
   }
 }
