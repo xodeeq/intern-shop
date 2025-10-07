@@ -15,9 +15,11 @@ import { CapitalizeAndSpacePipe } from '../../pipes/capitalize-and-space-pipe';
       
       <img [src]="product.image" alt="{{product.name}}" />
 
-       <p>Brand: {{ product.brand }}</p>
+       <div class= "details">
+        <p>Brand: {{ product.brand }}</p>
         <p>Price: {{ product.price | currency:'NGN' }}</p>
         <p>Stock: {{ product.stock }}</p>
+       </div>
       <button (click)="addToCart()">Add to Cart</button>
     </div>
   `,
@@ -45,6 +47,7 @@ import { CapitalizeAndSpacePipe } from '../../pipes/capitalize-and-space-pipe';
         margin: 0 0 10px;
         font-weight: 600;
       }
+
 
       .price {
         font-size: 20px;

@@ -4,14 +4,16 @@ import { ProductSearch } from './components/product-search/product-search';
 import { ProductCart } from './components/product-cart/product-cart';
 import { ProductList } from "./components/product-list/product-list";
 import { Footer } from './components/footer/footer';
+import { HeaderComponent } from "./components/header/header";
 
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, ProductCart, ProductList, Footer],
+  imports: [RouterOutlet, ProductCart, ProductList, Footer, HeaderComponent],
   template: `
   <div class="general">
-    <h1 class="header">Welcome to Products Store!</h1>
+    <app-header></app-header>
+    
     <!-- <app-product-search (productsearched)="handleProductSearch($event)"></app-product-search> -->
     <app-product-list [selectedCategory]="selectedCategory"></app-product-list>
     <app-product-cart></app-product-cart>
