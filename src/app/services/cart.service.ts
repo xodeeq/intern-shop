@@ -23,6 +23,10 @@ export class CartService {
   private totalPriceUpdate = new BehaviorSubject<number>(0);
   totalPriceUpdates$ = this.totalPriceUpdate.asObservable();
 
+  private totalItemsUpdate = new BehaviorSubject<number>(0);
+  totalItemsUpdates$ = this.totalItemsUpdate.asObservable();
+
+
 
 
 
@@ -124,6 +128,13 @@ export class CartService {
     // return total;
 
   }
+
+  private updateCartObservers() {
+    this.cartUpdate.next([...this.cart]);
+    this.totalPriceUpdate.next(this.totalPrice);
+    this.totalItemsUpdate.next(this.getTotalItems());
+  }
+
 
 
 }

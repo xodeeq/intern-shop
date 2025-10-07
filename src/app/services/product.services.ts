@@ -32,14 +32,14 @@ export class ProductService {
     // Appliances
     "fridge": { name: "fridge", price: 899, stock: 10, brand: 'Samsung', category: "appliance", image: "https://tse3.mm.bing.net/th/id/OIP.xZGkTQ3grFSh1zI1z9WTewHaJn?rs=1&pid=ImgDetMain&o=7&rm=3" },
     "microwave": { name: "microwave", price: 199, stock: 20, brand: 'Panasonic', category: "appliance", image: "https://tse3.mm.bing.net/th/id/OIP.xZGkTQ3grFSh1zI1z9WTewHaJn?rs=1&pid=ImgDetMain&o=7&rm=3" },
-    "washingMachine": { name: "washingMachine", price: 599, stock: 8, brand: 'LG', category: "appliance", image: "https://tse3.mm.bing.net/th/id/OIP.xZGkTQ3grFSh1zI1z9WTewHaJn?rs=1&pid=ImgDetMain&o=7&rm=3" },
-    "airConditioner": { name: "airConditioner", price: 799, stock: 6, brand: 'Haier', category: "appliance", image: "https://tse3.mm.bing.net/th/id/OIP.xZGkTQ3grFSh1zI1z9WTewHaJn?rs=1&pid=ImgDetMain&o=7&rm=3" },
+    "washingmachine": { name: "washingMachine", price: 599, stock: 8, brand: 'LG', category: "appliance", image: "https://tse3.mm.bing.net/th/id/OIP.xZGkTQ3grFSh1zI1z9WTewHaJn?rs=1&pid=ImgDetMain&o=7&rm=3" },
+    "airconditioner": { name: "airConditioner", price: 799, stock: 6, brand: 'Haier', category: "appliance", image: "https://tse3.mm.bing.net/th/id/OIP.xZGkTQ3grFSh1zI1z9WTewHaJn?rs=1&pid=ImgDetMain&o=7&rm=3" },
     "blender": { name: "blender", price: 49, stock: 40, brand: 'Philips', category: "appliance", image: "https://tse3.mm.bing.net/th/id/OIP.xZGkTQ3grFSh1zI1z9WTewHaJn?rs=1&pid=ImgDetMain&o=7&rm=3" },
     "oven": { name: "oven", price: 399, stock: 11, brand: 'Whirlpool', category: "appliance", image: "https://tse3.mm.bing.net/th/id/OIP.xZGkTQ3grFSh1zI1z9WTewHaJn?rs=1&pid=ImgDetMain&o=7&rm=3" },
-    "vacuumCleaner": { name: "vacuumCleaner", price: 249, stock: 14, brand: 'Dyson', category: "appliance", image: "https://tse3.mm.bing.net/th/id/OIP.xZGkTQ3grFSh1zI1z9WTewHaJn?rs=1&pid=ImgDetMain&o=7&rm=3" },
+    "vacuumcleaner": { name: "vacuumCleaner", price: 249, stock: 14, brand: 'Dyson', category: "appliance", image: "https://tse3.mm.bing.net/th/id/OIP.xZGkTQ3grFSh1zI1z9WTewHaJn?rs=1&pid=ImgDetMain&o=7&rm=3" },
     "toaster": { name: "toaster", price: 59, stock: 22, brand: 'Breville', category: "appliance", image: "https://tse3.mm.bing.net/th/id/OIP.xZGkTQ3grFSh1zI1z9WTewHaJn?rs=1&pid=ImgDetMain&o=7&rm=3" },
     "dishwasher": { name: "dishwasher", price: 699, stock: 9, brand: 'Bosch', category: "appliance", image: "https://tse3.mm.bing.net/th/id/OIP.xZGkTQ3grFSh1zI1z9WTewHaJn?rs=1&pid=ImgDetMain&o=7&rm=3" },
-    "coffeeMaker": { name: "coffeeMaker", price: 149, stock: 16, brand: 'Nespresso', category: "appliance", image: "https://tse3.mm.bing.net/th/id/OIP.xZGkTQ3grFSh1zI1z9WTewHaJn?rs=1&pid=ImgDetMain&o=7&rm=3" },
+    "coffeemaker": { name: "coffeeMaker", price: 149, stock: 16, brand: 'Nespresso', category: "appliance", image: "https://tse3.mm.bing.net/th/id/OIP.xZGkTQ3grFSh1zI1z9WTewHaJn?rs=1&pid=ImgDetMain&o=7&rm=3" },
 
     // Fashion
     "tshirt": { name: "tshirt", price: 29, stock: 100, brand: 'Nike', category: "fashion", image: "https://tse3.mm.bing.net/th/id/OIP.xZGkTQ3grFSh1zI1z9WTewHaJn?rs=1&pid=ImgDetMain&o=7&rm=3" },
@@ -55,7 +55,7 @@ export class ProductService {
 
     // Books
     "novel": { name: "novel", price: 19, stock: 120, brand: 'Penguin', category: "book", image: "https://tse3.mm.bing.net/th/id/OIP.xZGkTQ3grFSh1zI1z9WTewHaJn?rs=1&pid=ImgDetMain&o=7&rm=3" },
-    "scienceTextbook": { name: "scienceTextbook", price: 49, stock: 50, brand: 'Oxford', category: "book", image: "https://tse3.mm.bing.net/th/id/OIP.xZGkTQ3grFSh1zI1z9WTewHaJn?rs=1&pid=ImgDetMain&o=7&rm=3" },
+    "sciencetextbook": { name: "scienceTextbook", price: 49, stock: 50, brand: 'Oxford', category: "book", image: "https://tse3.mm.bing.net/th/id/OIP.xZGkTQ3grFSh1zI1z9WTewHaJn?rs=1&pid=ImgDetMain&o=7&rm=3" },
     "comic": { name: "comic", price: 9, stock: 200, brand: 'Marvel', category: "book", image: "https://tse3.mm.bing.net/th/id/OIP.xZGkTQ3grFSh1zI1z9WTewHaJn?rs=1&pid=ImgDetMain&o=7&rm=3" },
     "cookbook": { name: "cookbook", price: 25, stock: 70, brand: 'DK', category: "book", image: "https://tse3.mm.bing.net/th/id/OIP.xZGkTQ3grFSh1zI1z9WTewHaJn?rs=1&pid=ImgDetMain&o=7&rm=3" },
     "dictionary": { name: "dictionary", price: 35, stock: 40, brand: 'Cambridge', category: "book", image: "https://tse3.mm.bing.net/th/id/OIP.xZGkTQ3grFSh1zI1z9WTewHaJn?rs=1&pid=ImgDetMain&o=7&rm=3" },

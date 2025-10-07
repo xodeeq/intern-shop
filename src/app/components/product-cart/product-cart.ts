@@ -53,6 +53,7 @@ import { CapitalizeAndSpacePipe } from '../../pipes/capitalize-and-space-pipe';
     margin: 30px;
     background-color: #fff;
     box-shadow: 0 4px 8px rgba(248, 238, 238, 0.72);
+    font-family: Arial, sans-serif;
   }
 
   .cart-item {
