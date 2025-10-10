@@ -75,7 +75,7 @@ import { Payment } from '../payment/payment';
       </div>
     </div>
 
-    <h3 *ngIf="totalPrice > 0">Total: {{ totalPrice | currency:'NGN' }}</h3>
+    <h3 *ngIf="totalPrice > 0">Sub Total: {{ totalPrice | currency:'NGN' }}</h3>
     <h3 *ngIf="totalPrice === 0">Your cart is empty.</h3>
   </div>
 

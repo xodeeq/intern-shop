@@ -13,18 +13,16 @@ import { RouterLink } from '@angular/router';
   template: `
     <div class="product-card">
       <h3>{{ product.name | capitalizeAndSpace }}</h3>
-      <a [routerLink]="['/product', product.category, product.name, product.id]" class="product-card">
-  <img [src]="product.image" alt="{{ product.name }}" />
-</a>
-
+      <img [src]="product.image" alt="{{ product.name }}" />
       
-
        <div class= "details">
         <p>Brand: {{ product.brand }}</p>
         <p>Price: {{ product.price | currency:'NGN' }}</p>
         <p>Stock: {{ product.stock }}</p>
        </div>
       <button (click)="addToCart()">Add to Cart</button>
+      <a [routerLink]="['/product', product.category, product.name, product.id]"
+      [queryParams]="{rating: product.rating, reviews: product.review}" class="product-details">View Details</a>
     </div>
   `,
   styles: [
@@ -36,6 +34,15 @@ import { RouterLink } from '@angular/router';
         padding: 16px;
         text-align: center;
         box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+      }
+
+      .product-details{
+        text-decoration: none;
+        transition: 0.3s all ease;
+      }
+
+      .product-details:hover{
+        color: #e91e63;
       }
 
       .product-card img {

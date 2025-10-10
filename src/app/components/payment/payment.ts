@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { PaymentService } from '../../services/payment.service';
 import { CommonModule } from '@angular/common';
+import { CartService } from '../../services/cart.service';
 
 @Component({
   selector: 'app-payment',
@@ -95,11 +96,20 @@ export class Payment implements OnInit {
   discount: string | number = '-';
   total = 0;
 
-  constructor(private paymentservice: PaymentService) { }
+  constructor(
+    private paymentservice: PaymentService,
+    private cartservice: CartService
+  ) { }
 
   ngOnInit() {
     this.loadPaymentSummary();
+
+    this.cartservice.cartUpdates$.subscribe(() => {
+      this.loadPaymentSummary();
+    });
   }
+
+
 
   loadPaymentSummary() {
     this.subtotal = this.paymentservice.getSubTotalPrice();
