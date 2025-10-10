@@ -1,10 +1,11 @@
 import { Injectable } from '@angular/core';
 import { ProductService } from './product.services';
 import { BehaviorSubject } from 'rxjs';
+import { CapitalizeAndSpacePipe } from '../pipes/capitalize-and-space-pipe';
 
 
 
-export interface CartItem { choice: string; quantity: number; price: number; image: string; }
+export interface CartItem { id: number; name: string; quantity: number; price: number; image: string; color?: string; size?: string; }
 
 
 
@@ -16,6 +17,9 @@ export class CartService {
 
 
   totalPrice: number = 0;
+
+  private discount = 0;
+
 
   private cartUpdate = new BehaviorSubject<CartItem[]>([]);
   cartUpdates$ = this.cartUpdate.asObservable();
@@ -33,31 +37,31 @@ export class CartService {
   constructor(private productService: ProductService) { }
 
 
-  addToCart(productKey: string, quantity: number): string {
+  addToCart(productId: number, quantity: number, color?: string, size?: string): string {
     // products should be imported from Product service (from Louisa)
 
-    const product = this.productService.getProductByName(productKey);
+    const product = this.productService.getProductById(productId);
 
     if (!product) return "❌ Item not found.";
     if (quantity > product.stock) {
-      return `❌ Sorry, we only have ${product.stock} ${productKey}(s) in stock.`;
+      return `❌ Sorry, we only have ${product.stock} ${productId}(s) in stock.`;
     }
 
-    const existingItem = this.cart.find(item => item.choice === product.name);
+    const existingItem = this.cart.find(item => item.id === product.id && item.color === color && item.size === size);
 
     if (existingItem) {
       existingItem.quantity += quantity;
     } else {
-      this.cart.push({ choice: product.name, quantity, price: product.price, image: product.image });
+      this.cart.push({ id: product.id, name: product.name, quantity, price: product.price, image: product.image, color, size });
     }
 
     product.stock -= quantity;
     this.totalPrice += product.price * quantity;
 
-    this.cartUpdate.next(this.cart);
+    this.updateCartObservers();
     this.totalPriceUpdate.next(this.totalPrice);
 
-    return `✅ Added ${quantity} ${productKey}(s) to the cart.`;
+    return `✅ Added ${quantity} ${product.name}(s) - ${color || ''} ${size || ''} to the cart.`;
 
 
   }
@@ -66,10 +70,10 @@ export class CartService {
     return this.cart;
   }
 
-  updateCart(productKey: string, newQuantity: number) {
-    const product = this.productService.getProductByName(productKey);
+  updateCart(productId: number, newQuantity: number) {
+    const product = this.productService.getProductById(productId);
     if (!product) return "❌ Item not found.";
-    const item = this.cart.find(c => c.choice === product?.name);
+    const item = this.cart.find(c => c.id === product?.id);
 
     if (!item) return "❌ Item not found in cart.";
 
@@ -81,37 +85,35 @@ export class CartService {
       }
       product.stock -= difference;
       this.totalPrice += product.price * difference;
-    } else if (difference < 0) {
+    } else {
       product.stock += Math.abs(difference);
       this.totalPrice -= product.price * Math.abs(difference);
     }
     item.quantity = newQuantity;
 
-    this.cartUpdate.next(this.cart);
-    this.totalPriceUpdate.next(this.totalPrice);
+    this.updateCartObservers();
 
-    return `✅ Updated ${productKey} quantity to ${newQuantity}.`;
+    return `✅ Updated ${product.name} quantity to ${newQuantity}.`;
   }
 
-  removeFromCart(productKey: string) {
-    const product = this.productService.getProductByName(productKey);
+  removeFromCart(productId: number) {
+    const product = this.productService.getProductById(productId);
     if (!product) return "❌ Item not found.";
-    const itemIndex = this.cart.findIndex(c => c.choice === product?.name);
 
-    if (itemIndex === -1) return "❌ Item not found in cart.";
+    const index = this.cart.findIndex(c => c.id === product.id);
+    if (index === -1) return "❌ Item not found in cart.";
 
-    const item = this.cart[itemIndex];
+    const item = this.cart[index];
     product.stock += item.quantity;
-    this.totalPrice -= product.price * item.quantity;
-    this.cart.splice(itemIndex, 1);
+    this.totalPrice -= item.price * item.quantity;
 
-    this.cartUpdate.next(this.cart);
-    this.totalPriceUpdate.next(this.totalPrice);
+    this.cart.splice(index, 1);
+    this.updateCartObservers();
 
-    return `✅ Removed ${productKey} from the cart.`;
+    return `✅ Removed ${product.name} from the cart.`;
   }
 
-  getTotalCartPrice() {
+  getSubTotalCartPrice() {
     return this.totalPrice;
   }
 
@@ -133,6 +135,10 @@ export class CartService {
     this.cartUpdate.next([...this.cart]);
     this.totalPriceUpdate.next(this.totalPrice);
     this.totalItemsUpdate.next(this.getTotalItems());
+  }
+
+  getDiscount(): number {
+    return this.discount || 0;
   }
 
 

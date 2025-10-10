@@ -5,20 +5,20 @@ import { ProductCart } from './components/product-cart/product-cart';
 import { ProductList } from "./components/product-list/product-list";
 import { Footer } from './components/footer/footer';
 import { HeaderComponent } from "./components/header/header";
+import { Payment } from "./components/payment/payment";
 
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, ProductCart, ProductList, Footer, HeaderComponent],
+  imports: [RouterOutlet, Footer, HeaderComponent,],
   template: `
   <div class="general">
     <app-header></app-header>
     
-    <!-- <app-product-search (productsearched)="handleProductSearch($event)"></app-product-search> -->
-    <app-product-list [selectedCategory]="selectedCategory"></app-product-list>
-    <app-product-cart></app-product-cart>
-     <app-footer (categorySelected)="onCategorySelected($event)"></app-footer>
+    
     <router-outlet />
+     <app-footer (categorySelected)="onCategorySelected($event)"></app-footer>
+    
   </div>
   `,
   styles: [`
@@ -27,6 +27,7 @@ import { HeaderComponent } from "./components/header/header";
       padding: 0;
       box-sizing: border-box;
     }
+    
 
     body, html {
       font-family: Arial, sans-serif;

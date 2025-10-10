@@ -12,26 +12,29 @@ import { CartService } from '../../services/cart.service';
   `,
   styles: `
      .notification {
-      position: relative;
-      display: inline-block;
-    }
+  position: relative;
+  display: inline-block;
+}
 
-    .badge {
-      position: absolute;
-      top: -25px;
-      right: -15px;
-      background: #ff3b3b;
-      color: white;
-      border-radius: 50%;
-      padding: 3px 7px;
-      font-size: 11px;
-      font-weight: 600;
-      min-width:8px;
-      max-width: 10px;
-      text-align: center;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-      line-height: 1;
-    }`,
+.badge {
+  position: absolute;
+  top: -8px;
+  right: -10px;
+  background: #ff3b3b;
+  color: white;
+  border-radius: 50%;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 3px 6px;
+  min-width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+`,
 })
 export class Notification {
   constructor(private cartservice: CartService) { }
