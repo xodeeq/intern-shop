@@ -2,30 +2,59 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule, NgFor, NgForOf, NgIf } from '@angular/common';
 import { CartItem, CartService } from '../../services/cart.service';
 import { CapitalizeAndSpacePipe } from '../../pipes/capitalize-and-space-pipe';
+import { Payment } from '../payment/payment';
 
 
 @Component({
   selector: 'app-product-cart',
-  imports: [CommonModule, CapitalizeAndSpacePipe],
+  imports: [CommonModule, CapitalizeAndSpacePipe, Payment],
   standalone: true,
   template: `
-  <div class="container">
+
+  <div class="cart-layout">
+  <div class="cart-section">
     <h2 class="class-header">Cart</h2>
     <div *ngFor="let item of cart" class="cart-item">
-      <img [src]="item.image" alt="{{item.choice | capitalizeAndSpace}}" class="cart-image" />
+      <img [src]="item.image" alt="{{item.name | capitalizeAndSpace}}" class="cart-image" />
 
       <div class="item-details">
-        <h3 class="item-name">{{ item.choice | capitalizeAndSpace}}</h3>
+        <h3 class="item-name">{{ item.name | capitalizeAndSpace}}</h3>
         <div class="item-sub-details">
-          <p class="item-subs">Other details</p>
-          <p class="item-subs">Other details</p>
+          
+          @if (item.color === '#007bff'){
+            <p class="item-subs">Colour: Blue</p>
+          }
+          @else if (item.color === '#ff5722'){
+            <p class="item-subs">Colour: Orange</p>
+          }
+          @else if (item.color === '#9c27b0'){
+            <p class="item-subs">Colour: Purple</p>
+          }
+          @else if (item.color === '#4caf50'){
+            <p class="item-subs">Colour: Green</p>
+          }
+          
+          @if (item.size === 'S') {
+             <p class="item-subs">Size: Small</p>
+            } @else if (item.size === 'M') {
+              <p class="item-subs">Size: Medium</p>
+            } @else if (item.size === 'L') {
+               <p class="item-subs">Size: Large</p>
+            }
+            @else if (item.size === 'XL') {
+               <p class="item-subs">Size: Exta Large</p>
+            }
+            @else if (item.size === 'XXL') {
+               <p class="item-subs">Size: Double Extra Large</p>
+            }
+
           <p class="item-subs">Other details</p>
         </div>
       </div>
 
   
       <div class="cart-actions">
-        <div class="price">{{ item.price | currency:'NGN':'symbol-narrow':'1.0-0' }}</div>
+        <div class="price">{{ item.price | currency:'NGN':'symbol-narrow':'1.2-2' }}</div>
 
         <div class="quantity">
           <button (click)="decrease(item)">-</button>
@@ -34,8 +63,14 @@ import { CapitalizeAndSpacePipe } from '../../pipes/capitalize-and-space-pipe';
         </div>
 
         <div class="icons">
-          <span class="icon" >♡</span>
-          <span class="icon" (click)="remove(item)">🗑</span>
+          <span class="icon favorite">
+            <i class="fa-regular fa-heart"></i>
+          </span>
+
+          <span class="icon remove" (click)="remove(item)">
+            <i class="fa-solid fa-trash"></i>
+          </span>
+
         </div>
       </div>
     </div>
@@ -43,23 +78,44 @@ import { CapitalizeAndSpacePipe } from '../../pipes/capitalize-and-space-pipe';
     <h3 *ngIf="totalPrice > 0">Total: {{ totalPrice | currency:'NGN' }}</h3>
     <h3 *ngIf="totalPrice === 0">Your cart is empty.</h3>
   </div>
+
+  <app-payment></app-payment>
+
+  </div>
+  
+  
 `,
   styles: [`
-  .container {
-    border: 2px solid #fff;
-    border-radius: 8px;
-    padding: 20px;
-    max-width: 700px;
-    margin: 30px;
-    background-color: #fff;
-    box-shadow: 0 4px 8px rgba(248, 238, 238, 0.72);
+  .cart-section {
+    flex: 2;
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 4px 8px rgba(248, 238, 238, 0.72);
+  }
+
+  .cart-layout {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 30px;
+  margin: 30px;
+}
+
+app-payment {
+  flex: 1;
+  position: sticky;
+  top: 20px;
+}
+
+  .class-header{
+    font-size: bolder;
     font-family: Arial, sans-serif;
   }
 
   .cart-item {
     display: flex;
-    justify-content: space-between; /* ✅ pushes actions to the right */
-    align-items: flex-start;
+    justify-content: space-between; 
     border-bottom: 1px solid #ccc;
     padding: 10px 0;
     margin-bottom: 10px;
@@ -93,7 +149,7 @@ import { CapitalizeAndSpacePipe } from '../../pipes/capitalize-and-space-pipe';
 
   .cart-actions {
     display: flex;
-    flex-direction: column; /* ✅ stack price, qty, icons */
+    flex-direction: column; \
     align-items: flex-end;
     gap: 8px;
     min-width: 80px;
@@ -132,12 +188,22 @@ import { CapitalizeAndSpacePipe } from '../../pipes/capitalize-and-space-pipe';
   }
 
   .icon {
-    font-size: 18px;
-  }
+  cursor: pointer;
+  font-size: 18px;
+  margin-right: 10px;
+  transition: color 0.4s ease, transform 0.4s ease;
+}
 
-  .icon:hover {
-    color: red;
-  }
+.icon.favorite:hover {
+  color: #e91e63; 
+  
+}
+
+.icon.remove:hover {
+  color: #f44336; 
+  
+}
+
 `]
 
 })
@@ -159,18 +225,19 @@ export class ProductCart implements OnInit {
   }
 
   increase(item: CartItem) {
-    this.Cartservice.updateCart(item.choice, item.quantity + 1);
+    this.Cartservice.updateCart(item.id, item.quantity + 1);
   }
 
   decrease(item: CartItem) {
     if (item.quantity > 1) {
-      this.Cartservice.updateCart(item.choice, item.quantity - 1);
+      this.Cartservice.updateCart(item.id, item.quantity - 1);
     }
   }
 
   remove(item: CartItem) {
-    this.Cartservice.removeFromCart(item.choice);
+    this.Cartservice.removeFromCart(item.id);
   }
+
 
 
 }

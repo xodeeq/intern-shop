@@ -3,17 +3,21 @@ import { Component, Input } from '@angular/core';
 import { CartService } from '../../services/cart.service';
 import { Product } from '../../services/product.services';
 import { CapitalizeAndSpacePipe } from '../../pipes/capitalize-and-space-pipe';
+import { RouterLink } from '@angular/router';
 
 
 @Component({
   selector: 'app-product-card',
   standalone: true,
-  imports: [CommonModule, CapitalizeAndSpacePipe],
+  imports: [CommonModule, CapitalizeAndSpacePipe, RouterLink],
   template: `
     <div class="product-card">
       <h3>{{ product.name | capitalizeAndSpace }}</h3>
+      <a [routerLink]="['/product', product.category, product.name, product.id]" class="product-card">
+  <img [src]="product.image" alt="{{ product.name }}" />
+</a>
+
       
-      <img [src]="product.image" alt="{{product.name}}" />
 
        <div class= "details">
         <p>Brand: {{ product.brand }}</p>
@@ -79,7 +83,7 @@ export class ProductCard {
   constructor(private cartService: CartService) { }
 
   addToCart() {
-    const result = this.cartService.addToCart(this.product.name.toLowerCase(), 1);
+    const result = this.cartService.addToCart(this.product.id, 1);
     console.log(result);
     alert(result);
   }
