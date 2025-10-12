@@ -61,6 +61,7 @@ import { CapitalizeAndSpacePipe } from '../../pipes/capitalize-and-space-pipe';
       color: #eee;
       padding: 50px 20px;
       font-family: 'Poppins', sans-serif;
+      margin-top: 10px;
     }
 
     .footer-container {
