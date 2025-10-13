@@ -21,6 +21,11 @@ import { CartService } from '../../services/cart.service';
       </div>
 
       <div class="summary-row">
+        <span>VAT (1%)</span>
+        <span>\{{ vat | currency:'NGN':'symbol-narrow':'1.2-2' }}</span>
+      </div>
+
+      <div class="summary-row">
         <span>Discount</span>
         <span>{{ discount === '-' ? '-' : (discount | currency:'NGN':'symbol-narrow':'1.2-2') }}</span>
       </div>
@@ -93,6 +98,7 @@ export class Payment implements OnInit {
 
   subtotal = 0;
   delivery = 0;
+  vat = 0;
   discount: string | number = '-';
   total = 0;
 
@@ -115,6 +121,7 @@ export class Payment implements OnInit {
     this.subtotal = this.paymentservice.getSubTotalPrice();
     this.delivery = this.paymentservice.calculateDelivery();
     this.discount = this.paymentservice.calculateDiscount();
+    this.vat = this.paymentservice.calculateVAT();
     this.total = this.paymentservice.calculateTotalPrice();
   }
 

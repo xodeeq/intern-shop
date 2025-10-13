@@ -2,13 +2,14 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Notification } from '../notification/notification';
 import { RouterLink } from '@angular/router';
+import { LikeNotification } from '../notification/like-notification';
 
 
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [CommonModule, Notification, RouterLink],
+  imports: [CommonModule, Notification, RouterLink, LikeNotification],
   template: `
   <head><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" crossorigin="anonymous" referrerpolicy="no-referrer" /></head>
     <footer class="footer">
@@ -24,8 +25,12 @@ import { RouterLink } from '@angular/router';
       </nav>
 
       <div class="icons">
+        <input type="text" placeholder="Search Products..." class="search-input" />
         <i class="fa fa-search"></i>
-        <i class="fa fa-heart"></i>
+    
+        <i class="fa fa-heart" [routerLink]= "['/likes']">
+          <app-like-notification></app-like-notification>
+        </i>
         <div class="cart-icon">
           <i class="fa fa-shopping-cart" [routerLink]="['/cart']">
 
@@ -75,6 +80,27 @@ import { RouterLink } from '@angular/router';
       display: inline-block;
       cursor: pointer;
     }
+    .search-input {
+      padding: 8px 12px;
+      border: 2px solid #ccc; 
+      border-radius: 4px;
+      font-size: 14px;
+      width: 200px;
+      transition: width 0.3s ease;
+    }
+    .search-input:focus {
+      width: 300px;
+      outline: none;
+      border-color: #007bff;
+      border-radius: 4px;
+    }
+    .search-input::placeholder { 
+      color: #999;
+      font-size: 14px;
+      font-style: italic;
+    }
+    
+    
     `,
   ],
 })

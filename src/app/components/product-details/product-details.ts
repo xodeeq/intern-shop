@@ -79,6 +79,7 @@ import { CapitalizeAndSpacePipe } from '../../pipes/capitalize-and-space-pipe';
   styles: `
   .product-details {
   display: flex;
+  margin: 40px;
   gap: 40px;
   padding: 40px;
   background: #fff;
