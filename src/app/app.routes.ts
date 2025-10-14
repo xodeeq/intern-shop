@@ -21,4 +21,5 @@ export const routes: Routes = [
     path: 'likes',
     loadComponent: () => import('./components/liked-product/liked-product').then(m => m.LikedProduct)
   }
+
 ];

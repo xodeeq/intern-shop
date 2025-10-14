@@ -37,8 +37,11 @@ export class CartService {
   constructor(private productService: ProductService) { }
 
 
+
+
+
   addToCart(productId: number, quantity: number, color?: string, size?: string): string {
-    // products should be imported from Product service (from Louisa)
+
 
     const product = this.productService.getProductById(productId);
 
@@ -66,15 +69,11 @@ export class CartService {
 
   }
 
-  getCart() {
-    return this.cart;
-  }
-
-  updateCart(productId: number, newQuantity: number) {
+  updateCart(productId: number, newQuantity: number, color?: string, size?: string) {
     const product = this.productService.getProductById(productId);
     if (!product) return "❌ Item not found.";
-    const item = this.cart.find(c => c.id === product?.id);
 
+    const item = this.cart.find(c => c.id === product.id && c.color === color && c.size === size);
     if (!item) return "❌ Item not found in cart.";
 
     const difference = newQuantity - item.quantity;
@@ -89,18 +88,18 @@ export class CartService {
       product.stock += Math.abs(difference);
       this.totalPrice -= product.price * Math.abs(difference);
     }
-    item.quantity = newQuantity;
 
+    item.quantity = newQuantity;
     this.updateCartObservers();
 
-    return `✅ Updated ${product.name} quantity to ${newQuantity}.`;
+    return `✅ Updated ${product.name} (${color || ''} ${size || ''}) quantity to ${newQuantity}.`;
   }
 
-  removeFromCart(productId: number) {
+  removeFromCart(productId: number, color?: string, size?: string) {
     const product = this.productService.getProductById(productId);
     if (!product) return "❌ Item not found.";
 
-    const index = this.cart.findIndex(c => c.id === product.id);
+    const index = this.cart.findIndex(c => c.id === product.id && c.color === color && c.size === size);
     if (index === -1) return "❌ Item not found in cart.";
 
     const item = this.cart[index];
@@ -110,8 +109,14 @@ export class CartService {
     this.cart.splice(index, 1);
     this.updateCartObservers();
 
-    return `✅ Removed ${product.name} from the cart.`;
+    return `✅ Removed ${product.name} (${color || ''} ${size || ''}) from the cart.`;
   }
+
+  getCart() {
+    return this.cart;
+  }
+
+
 
   getSubTotalCartPrice() {
     return this.totalPrice;

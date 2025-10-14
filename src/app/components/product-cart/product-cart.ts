@@ -57,17 +57,18 @@ import { Payment } from '../payment/payment';
         <div class="price">{{ item.price | currency:'NGN':'symbol-narrow':'1.2-2' }}</div>
 
         <div class="quantity">
-          <button (click)="decrease(item)">-</button>
+          <button (click)="decreaseQuantity(item)">-</button>
           <span>{{ item.quantity }}</span>
-          <button (click)="increase(item)">+</button>
+          <button (click)="increaseQuantity(item)">+</button>
         </div>
+
 
         <div class="icons">
           <span class="icon favorite">
             <i class="fa-regular fa-heart"></i>
           </span>
 
-          <span class="icon remove" (click)="remove(item)">
+          <span class="icon remove" (click)="removeItem(item)">
             <i class="fa-solid fa-trash"></i>
           </span>
 
@@ -212,31 +213,34 @@ export class ProductCart implements OnInit {
   cart: CartItem[] = [];
   totalPrice: number = 0;
 
-  constructor(private Cartservice: CartService) { }
+  constructor(private cartService: CartService) { }
+
+
 
   ngOnInit(): void {
-    this.Cartservice.cartUpdates$.subscribe(updatedCart => {
+    this.cartService.cartUpdates$.subscribe(updatedCart => {
       this.cart = updatedCart;
     });
 
-    this.Cartservice.totalPriceUpdates$.subscribe(updatedTotal => {
+    this.cartService.totalPriceUpdates$.subscribe(updatedTotal => {
       this.totalPrice = updatedTotal;
     });
   }
 
-  increase(item: CartItem) {
-    this.Cartservice.updateCart(item.id, item.quantity + 1);
+  increaseQuantity(item: CartItem) {
+    this.cartService.updateCart(item.id, item.quantity + 1, item.color, item.size);
   }
 
-  decrease(item: CartItem) {
+  decreaseQuantity(item: CartItem) {
     if (item.quantity > 1) {
-      this.Cartservice.updateCart(item.id, item.quantity - 1);
+      this.cartService.updateCart(item.id, item.quantity - 1, item.color, item.size);
     }
   }
 
-  remove(item: CartItem) {
-    this.Cartservice.removeFromCart(item.id);
+  removeItem(item: CartItem) {
+    this.cartService.removeFromCart(item.id, item.color, item.size);
   }
+
 
 
 
