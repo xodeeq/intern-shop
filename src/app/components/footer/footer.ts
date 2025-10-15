@@ -20,7 +20,7 @@ import { CapitalizeAndSpacePipe } from '../../pipes/capitalize-and-space-pipe';
             <a href="#"><i class="fab fa-twitter"></i></a>
             <a href="#"><i class="fab fa-instagram"></i></a>
           </div>
-          <p>Designed © Kingsley Opakunle</p>
+          <p>Designed © Salami Ayomide</p>
         </div>
 
 
