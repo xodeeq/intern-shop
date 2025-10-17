@@ -20,6 +20,24 @@ export const routes: Routes = [
     title: 'Likes',
     path: 'likes',
     loadComponent: () => import('./components/liked-product/liked-product').then(m => m.LikedProduct)
+  },
+
+  {
+    title: 'Make Payment',
+    path: 'make-payment',
+    loadComponent: () => import('./components/make-payment/make-payment').then(m => m.MakePayment)
+  },
+
+  {
+    title: 'Payment',
+    path: 'payment',
+    loadComponent: () => import('./components/payment/payment').then(m => m.Payment)
+  },
+
+  {
+    title: 'Payment Success',
+    path: 'payment-success',
+    loadComponent: () => import('./components/payment-sucess/payment-sucess').then(m => m.PaymentSuccess)
   }
 
 ];

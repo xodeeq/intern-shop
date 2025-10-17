@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { PaymentService } from '../../services/payment.service';
 import { CommonModule } from '@angular/common';
 import { CartService } from '../../services/cart.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-payment',
@@ -37,7 +38,7 @@ import { CartService } from '../../services/cart.service';
         <span>\{{ total | currency:'NGN':'symbol-narrow':'1.2-2' }}</span>
       </div>
 
-      <button class="checkout-btn">Checkout</button>
+      <button class="checkout-btn" (click)="checkout()">Checkout</button>
     </div>
 
   `,
@@ -104,7 +105,8 @@ export class Payment implements OnInit {
 
   constructor(
     private paymentservice: PaymentService,
-    private cartservice: CartService
+    private cartservice: CartService,
+    private router: Router
   ) { }
 
   ngOnInit() {
@@ -123,6 +125,10 @@ export class Payment implements OnInit {
     this.discount = this.paymentservice.calculateDiscount();
     this.vat = this.paymentservice.calculateVAT();
     this.total = this.paymentservice.calculateTotalPrice();
+  }
+
+  checkout() {
+    this.router.navigate(['/make-payment']);
   }
 
 }
