@@ -571,4 +571,6 @@ export class CartService {
   getDiscount(): number {
     return this.discount || 0;
   }
+
+  
 } 
