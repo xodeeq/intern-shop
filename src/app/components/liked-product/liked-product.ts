@@ -98,6 +98,8 @@ export class LikedProduct implements OnInit {
   }
 
   remove(item: LikeItem) {
-    this.likeService.removeFromLikes(item.id, item.color, item.size);
-  }
+  if (item.id === undefined) return;   // <-- avoids crash
+  this.likeService.removeFromLikes(item.id, item.color, item.size);
+}
+
 }
