@@ -151,7 +151,6 @@
 // }
 
 
-
 import { Injectable } from '@angular/core';
 import { SupabaseService } from './supabase.service';
 import { ProductService } from './product.services';
@@ -191,27 +190,34 @@ export class CartService {
     private supabase: SupabaseService,
     private productService: ProductService
   ) {
+    console.log('🛒 CartService initialized');
     this.initializeCart();
   }
 
   private async initializeCart() {
+    console.log('🔧 Initializing cart...');
+    
     // Get current user
     const { data: { user } } = await this.supabase.client.auth.getUser();
     this.userId = user?.id || null;
 
     if (this.userId) {
+      console.log(`👤 User logged in: ${user?.email || 'Unknown'}`);
+      console.log(`🆔 User ID: ${this.userId}`);
       await this.loadCartFromSupabase();
     } else {
-      // Load from localStorage for guest users
+      console.log('👤 Guest user - using localStorage');
       this.loadCartFromLocalStorage();
     }
 
     // Listen for auth changes
     this.supabase.client.auth.onAuthStateChange(async (event, session) => {
+      console.log(`🔐 Auth state changed: ${event}`);
+      
       const newUserId = session?.user?.id || null;
       
       if (newUserId && newUserId !== this.userId) {
-        // User logged in - migrate local cart to Supabase
+        console.log('✅ User logged in - migrating cart to Supabase');
         const localCart = [...this.cart];
         this.userId = newUserId;
         await this.loadCartFromSupabase();
@@ -221,7 +227,7 @@ export class CartService {
           await this.addToCart(item.product_id, item.quantity, item.color, item.size);
         }
       } else if (!newUserId && this.userId) {
-        // User logged out - switch to localStorage
+        console.log('👋 User logged out - switching to localStorage');
         this.userId = null;
         this.saveCartToLocalStorage();
       }
@@ -231,6 +237,8 @@ export class CartService {
   private async loadCartFromSupabase() {
     if (!this.userId) return;
 
+    console.log('📥 Loading cart from Supabase...');
+    
     try {
       const { data, error } = await this.supabase.client
         .from('cart_items')
@@ -240,7 +248,12 @@ export class CartService {
         `)
         .eq('user_id', this.userId);
 
-      if (error) throw error;
+      if (error) {
+        console.error('❌ Failed to load cart:', error);
+        throw error;
+      }
+
+      console.log(`✅ Cart loaded: ${data?.length || 0} items`);
 
       this.cart = data.map((item: any) => ({
         id: item.id,
@@ -255,51 +268,71 @@ export class CartService {
 
       this.calculateTotalPrice();
       this.updateCartObservers();
+      
+      console.log(`💰 Cart total: ₦${this.totalPrice.toFixed(2)}`);
     } catch (error) {
       console.error('Error loading cart from Supabase:', error);
     }
   }
 
   private loadCartFromLocalStorage() {
+    console.log('📥 Loading cart from localStorage...');
+    
     const savedCart = localStorage.getItem('cart');
     if (savedCart) {
       this.cart = JSON.parse(savedCart);
+      console.log(`✅ Found ${this.cart.length} items in localStorage`);
       this.calculateTotalPrice();
       this.updateCartObservers();
+    } else {
+      console.log('📭 No saved cart found in localStorage');
     }
   }
 
   private saveCartToLocalStorage() {
+    console.log(`💾 Saving ${this.cart.length} items to localStorage`);
     localStorage.setItem('cart', JSON.stringify(this.cart));
   }
 
   async addToCart(productId: number, quantity: number, color?: string, size?: string): Promise<string> {
+    console.log(`➕ Adding to cart: Product ${productId}, Qty: ${quantity}, Color: ${color}, Size: ${size}`);
+    
     const product = await this.productService.getProductById(productId);
     
-    if (!product) return "❌ Item not found.";
+    if (!product) {
+      console.error(`❌ Product ${productId} not found`);
+      return "❌ Item not found.";
+    }
+    
     if (quantity > product.stock) {
+      console.warn(`⚠️ Insufficient stock: requested ${quantity}, available ${product.stock}`);
       return `❌ Sorry, we only have ${product.stock} ${product.name}(s) in stock.`;
     }
 
     if (this.userId) {
-      // Add to Supabase
+      console.log('💾 Adding to Supabase cart...');
+      
       try {
         const existingItem = this.cart.find(
           item => item.product_id === productId && item.color === color && item.size === size
         );
 
         if (existingItem) {
-          // Update existing item
+          console.log(`🔄 Updating existing cart item (current qty: ${existingItem.quantity})`);
           const newQuantity = existingItem.quantity + quantity;
+          
           const { error } = await this.supabase.client
             .from('cart_items')
             .update({ quantity: newQuantity })
             .eq('id', existingItem.id!);
 
           if (error) throw error;
+          
           existingItem.quantity = newQuantity;
+          console.log(`✅ Updated quantity to ${newQuantity}`);
         } else {
-          // Insert new item
+          console.log('📝 Creating new cart item...');
+          
           const { data, error } = await this.supabase.client
             .from('cart_items')
             .insert([{
@@ -324,6 +357,8 @@ export class CartService {
             color,
             size
           });
+          
+          console.log(`✅ New cart item created with ID: ${data.id}`);
         }
 
         // Update product stock
@@ -332,19 +367,22 @@ export class CartService {
         this.totalPrice += product.price * quantity;
         this.updateCartObservers();
 
+        console.log(`✅ Cart updated successfully. Total: ₦${this.totalPrice.toFixed(2)}`);
         return `✅ Added ${quantity} ${product.name}(s) to the cart.`;
       } catch (error) {
-        console.error('Error adding to cart:', error);
+        console.error('❌ Error adding to cart:', error);
         return "❌ Failed to add item to cart.";
       }
     } else {
-      // Add to localStorage for guest users
+      console.log('💾 Adding to localStorage cart...');
+      
       const existingItem = this.cart.find(
         item => item.product_id === product.id && item.color === color && item.size === size
       );
 
       if (existingItem) {
         existingItem.quantity += quantity;
+        console.log(`✅ Updated quantity to ${existingItem.quantity}`);
       } else {
         this.cart.push({
           product_id: product.id,
@@ -355,41 +393,56 @@ export class CartService {
           color,
           size
         });
+        console.log(`✅ Added new item to cart`);
       }
 
       this.totalPrice += product.price * quantity;
       this.saveCartToLocalStorage();
       this.updateCartObservers();
 
+      console.log(`✅ Cart updated. Total: ₦${this.totalPrice.toFixed(2)}`);
       return `✅ Added ${quantity} ${product.name}(s) to the cart.`;
     }
   }
 
   async updateCart(productId: number, newQuantity: number, color?: string, size?: string): Promise<string> {
+    console.log(`🔄 Updating cart: Product ${productId}, New Qty: ${newQuantity}, Color: ${color}, Size: ${size}`);
+    
     const product = await this.productService.getProductById(productId);
-    if (!product) return "❌ Item not found.";
+    if (!product) {
+      console.error(`❌ Product ${productId} not found`);
+      return "❌ Item not found.";
+    }
 
     const item = this.cart.find(
       c => c.product_id === productId && c.color === color && c.size === size
     );
-    if (!item) return "❌ Item not found in cart.";
+    
+    if (!item) {
+      console.warn('⚠️ Item not found in cart');
+      return "❌ Item not found in cart.";
+    }
 
     const difference = newQuantity - item.quantity;
+    console.log(`📊 Quantity change: ${item.quantity} → ${newQuantity} (${difference > 0 ? '+' : ''}${difference})`);
 
     if (difference > 0 && difference > product.stock) {
+      console.warn(`⚠️ Insufficient stock: need ${difference}, available ${product.stock}`);
       return `❌ Sorry, only ${product.stock} left in stock.`;
     }
 
     if (this.userId && item.id) {
       try {
+        console.log('💾 Updating quantity in Supabase...');
         const { error } = await this.supabase.client
           .from('cart_items')
           .update({ quantity: newQuantity })
           .eq('id', item.id);
 
         if (error) throw error;
+        console.log('✅ Quantity updated in Supabase');
       } catch (error) {
-        console.error('Error updating cart:', error);
+        console.error('❌ Error updating cart:', error);
         return "❌ Failed to update cart.";
       }
     }
@@ -398,9 +451,11 @@ export class CartService {
     if (difference > 0) {
       await this.productService.updateStock(productId, product.stock - difference);
       this.totalPrice += product.price * difference;
+      console.log(`📦 Stock decreased by ${difference}`);
     } else {
       await this.productService.updateStock(productId, product.stock + Math.abs(difference));
       this.totalPrice -= product.price * Math.abs(difference);
+      console.log(`📦 Stock increased by ${Math.abs(difference)}`);
     }
 
     item.quantity = newQuantity;
@@ -410,19 +465,24 @@ export class CartService {
     }
     
     this.updateCartObservers();
+    console.log(`✅ Cart updated. New total: ₦${this.totalPrice.toFixed(2)}`);
     return `✅ Updated ${product.name} quantity to ${newQuantity}.`;
   }
 
   async removeFromCart(productId: number, color?: string, size?: string): Promise<string> {
-    const product = await this.productService.getProductById(productId);
-    if (!product) return "❌ Item not found.";
-
+    console.log(`🗑️ Removing from cart: Product ${productId}, Color: ${color}, Size: ${size}`);
+    
     const index = this.cart.findIndex(
       c => c.product_id === productId && c.color === color && c.size === size
     );
-    if (index === -1) return "❌ Item not found in cart.";
+    
+    if (index === -1) {
+      console.warn('⚠️ Item not found in cart');
+      return "❌ Item not found in cart.";
+    }
 
     const item = this.cart[index];
+    console.log(`📦 Removing: ${item.name} (${item.quantity} items)`);
 
     if (this.userId && item.id) {
       try {
@@ -432,14 +492,17 @@ export class CartService {
           .eq('id', item.id);
 
         if (error) throw error;
+        console.log('✅ Item deleted from Supabase');
       } catch (error) {
-        console.error('Error removing from cart:', error);
+        console.error('❌ Error removing from cart:', error);
         return "❌ Failed to remove item.";
       }
     }
 
-    // Restore stock
-    await this.productService.updateStock(productId, product.stock + item.quantity);
+    const product = await this.productService.getProductById(productId);
+    if (product) {
+      await this.productService.updateStock(productId, product.stock + item.quantity);
+    }
     
     this.totalPrice -= item.price * item.quantity;
     this.cart.splice(index, 1);
@@ -449,10 +512,13 @@ export class CartService {
     }
     
     this.updateCartObservers();
-    return `✅ Removed ${product.name} from the cart.`;
+    console.log(`✅ Item removed. New total: ₦${this.totalPrice.toFixed(2)}`);
+    return `✅ Removed ${item.name} from the cart.`;
   }
 
   async clearCart(): Promise<void> {
+    console.log('🗑️ Clearing entire cart...');
+    
     if (this.userId) {
       try {
         const { error } = await this.supabase.client
@@ -461,32 +527,35 @@ export class CartService {
           .eq('user_id', this.userId);
 
         if (error) throw error;
+        console.log('✅ Cart cleared from Supabase');
       } catch (error) {
-        console.error('Error clearing cart:', error);
+        console.error('❌ Error clearing cart:', error);
       }
     } else {
       localStorage.removeItem('cart');
+      console.log('✅ Cart cleared from localStorage');
     }
 
     this.cart = [];
     this.totalPrice = 0;
     this.updateCartObservers();
+    console.log('✅ Cart is now empty');
   }
 
   getCart(): CartItem[] {
+    console.log(`📋 getCart() called - ${this.cart.length} items`);
     return [...this.cart];
   }
 
   getSubTotalCartPrice(): number {
+    console.log(`💰 Subtotal: ₦${this.totalPrice.toFixed(2)}`);
     return this.totalPrice;
   }
 
   getTotalItems(): number {
-    return this.cart.reduce((sum, item) => sum + item.quantity, 0);
-  }
-
-  getDiscount(): number {
-    return this.discount || 0;
+    const total = this.cart.reduce((sum, item) => sum + item.quantity, 0);
+    console.log(`📊 Total items: ${total}`);
+    return total;
   }
 
   private calculateTotalPrice() {
@@ -498,4 +567,8 @@ export class CartService {
     this.totalPriceUpdate.next(this.totalPrice);
     this.totalItemsUpdate.next(this.getTotalItems());
   }
-}
+
+  getDiscount(): number {
+    return this.discount || 0;
+  }
+} 

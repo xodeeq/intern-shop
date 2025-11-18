@@ -394,33 +394,60 @@ export class ProductService {
   public products$ = this.productsSubject.asObservable();
 
   constructor(private supabase: SupabaseService) {
+    console.log('🏪 ProductService initialized');
     this.loadProducts();
   }
 
   // Load all products from Supabase
   async loadProducts(): Promise<void> {
+    console.log('📥 Loading products from Supabase...');
+    const startTime = performance.now();
+
     try {
       const { data, error } = await this.supabase.client
         .from('products')
         .select('*')
         .order('id', { ascending: true });
 
-      if (error) throw error;
+      const loadTime = (performance.now() - startTime).toFixed(2);
+
+      if (error) {
+        console.error('❌ Error loading products:', error);
+        console.error('Error details:', {
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          code: error.code
+        });
+        throw error;
+      }
       
+      console.log(`✅ Products loaded successfully in ${loadTime}ms`);
+      console.log(`📦 Total products: ${data?.length || 0}`);
+      
+      if (data && data.length > 0) {
+        console.log('🔍 Sample product:', data[0]);
+        console.log('📊 Categories found:', [...new Set(data.map(p => p.category))]);
+      }
+
       this.productsSubject.next(data || []);
     } catch (error) {
-      console.error('Error loading products:', error);
+      console.error('💥 Failed to load products:', error);
       this.productsSubject.next([]);
     }
   }
 
   // Get all products (synchronous for backward compatibility)
   getProduct(): Product[] {
-    return this.productsSubject.value;
+    const products = this.productsSubject.value;
+    console.log(`📋 getProduct() called - returning ${products.length} products`);
+    return products;
   }
 
   // Get product by name
   async getProductByName(name: string): Promise<Product | null> {
+    console.log(`🔍 Searching for product by name: "${name}"`);
+    
     try {
       const { data, error } = await this.supabase.client
         .from('products')
@@ -428,7 +455,12 @@ export class ProductService {
         .eq('name', name)
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error(`❌ Product "${name}" not found:`, error.message);
+        throw error;
+      }
+      
+      console.log(`✅ Product found:`, data);
       return data;
     } catch (error) {
       console.error('Error fetching product by name:', error);
@@ -438,6 +470,8 @@ export class ProductService {
 
   // Get product by ID
   async getProductById(id: number): Promise<Product | null> {
+    console.log(`🔍 Fetching product by ID: ${id}`);
+    
     try {
       const { data, error } = await this.supabase.client
         .from('products')
@@ -445,7 +479,12 @@ export class ProductService {
         .eq('id', id)
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error(`❌ Product ID ${id} not found:`, error.message);
+        throw error;
+      }
+      
+      console.log(`✅ Product found:`, data.name);
       return data;
     } catch (error) {
       console.error('Error fetching product by ID:', error);
@@ -455,39 +494,34 @@ export class ProductService {
 
   // Synchronous version for backward compatibility (from cache)
   getProductByIdSync(id: number): Product | null {
+    console.log(`⚡ Quick lookup for product ID: ${id} (from cache)`);
     const product = this.productsSubject.value.find(p => p.id === id);
-    return product || null;
-  }
-
-  // Add new product (admin functionality)
-  async addProduct(product: Omit<Product, 'id' | 'created_at'>): Promise<Product | null> {
-    try {
-      const { data, error } = await this.supabase.client
-        .from('products')
-        .insert([product])
-        .select()
-        .single();
-
-      if (error) throw error;
-      
-      // Reload products to update local cache
-      await this.loadProducts();
-      return data;
-    } catch (error) {
-      console.error('Error adding product:', error);
-      return null;
+    
+    if (product) {
+      console.log(`✅ Found in cache: ${product.name}`);
+    } else {
+      console.warn(`⚠️ Product ID ${id} not found in cache`);
     }
+    
+    return product || null;
   }
 
   // Update product stock
   async updateStock(id: number, newStock: number): Promise<boolean> {
+    console.log(`📦 Updating stock for product ID ${id}: ${newStock}`);
+    
     try {
       const { error } = await this.supabase.client
         .from('products')
         .update({ stock: newStock })
         .eq('id', id);
 
-      if (error) throw error;
+      if (error) {
+        console.error('❌ Failed to update stock:', error);
+        throw error;
+      }
+      
+      console.log(`✅ Stock updated successfully`);
       
       // Update local cache
       await this.loadProducts();
@@ -498,69 +532,48 @@ export class ProductService {
     }
   }
 
-  // Remove product (admin functionality)
-  async removeProduct(id: number): Promise<boolean> {
-    try {
-      const { error } = await this.supabase.client
-        .from('products')
-        .delete()
-        .eq('id', id);
-
-      if (error) throw error;
-      
-      // Update local cache
-      await this.loadProducts();
-      return true;
-    } catch (error) {
-      console.error('Error removing product:', error);
-      return false;
-    }
-  }
-
   // Get all unique categories
   getCategories(): string[] {
     const products = this.productsSubject.value;
-    return [...new Set(products.map(p => p.category))];
+    const categories = [...new Set(products.map(p => p.category))];
+    console.log(`📂 Available categories:`, categories);
+    return categories;
   }
 
   // Get products by category
   getProductsByCategory(category: string): Product[] {
+    console.log(`🏷️ Filtering products by category: "${category}"`);
     const products = this.productsSubject.value;
+    
     if (category === 'all') {
+      console.log(`📦 Returning all ${products.length} products`);
       return products;
     }
-    return products.filter(p => p.category === category);
+    
+    const filtered = products.filter(p => p.category === category);
+    console.log(`✅ Found ${filtered.length} products in "${category}" category`);
+    return filtered;
   }
 
   // Search products
   async searchProducts(query: string): Promise<Product[]> {
+    console.log(`🔎 Searching products with query: "${query}"`);
+    
     try {
       const { data, error } = await this.supabase.client
         .from('products')
         .select('*')
         .ilike('name', `%${query}%`);
 
-      if (error) throw error;
+      if (error) {
+        console.error('❌ Search failed:', error);
+        throw error;
+      }
+      
+      console.log(`✅ Search returned ${data?.length || 0} results`);
       return data || [];
     } catch (error) {
       console.error('Error searching products:', error);
-      return [];
-    }
-  }
-
-  // Get products by price range
-  async getProductsByPriceRange(minPrice: number, maxPrice: number): Promise<Product[]> {
-    try {
-      const { data, error } = await this.supabase.client
-        .from('products')
-        .select('*')
-        .gte('price', minPrice)
-        .lte('price', maxPrice);
-
-      if (error) throw error;
-      return data || [];
-    } catch (error) {
-      console.error('Error fetching products by price range:', error);
       return [];
     }
   }
