@@ -151,6 +151,7 @@ import { Product } from '../../services/product.services';
 import { CapitalizeAndSpacePipe } from '../../pipes/capitalize-and-space-pipe';
 import { RouterLink } from '@angular/router';
 import { LikesService } from '../../services/likes.service';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-product-card',
@@ -162,6 +163,12 @@ import { LikesService } from '../../services/likes.service';
         <img [src]="product.image" [alt]="product.name" class="product-image" />
         <div class="stock-badge" [class.low-stock]="product.stock < 10">
           {{ product.stock }} in stock
+        </div>
+        
+        <!-- Auth Required Badge -->
+        <div class="auth-overlay" *ngIf="!isAuthenticated">
+          <i class="fa fa-lock"></i>
+          <span>Login to purchase</span>
         </div>
       </div>
 
@@ -188,9 +195,13 @@ import { LikesService } from '../../services/likes.service';
         </div>
 
         <div class="actions">
-          <button class="add-to-cart-btn" (click)="addToCart()" [disabled]="product.stock === 0">
-            <i class="fa fa-shopping-cart"></i>
-            <span>{{ product.stock === 0 ? 'Out of Stock' : 'Add to Cart' }}</span>
+          <button 
+            class="add-to-cart-btn" 
+            (click)="addToCart()" 
+            [disabled]="product.stock === 0 || isAddingToCart">
+            <i class="fa" [class.fa-shopping-cart]="!isAddingToCart" [class.fa-spinner]="isAddingToCart" [class.fa-spin]="isAddingToCart"></i>
+            <span *ngIf="!isAddingToCart">{{ product.stock === 0 ? 'Out of Stock' : 'Add to Cart' }}</span>
+            <span *ngIf="isAddingToCart">Adding...</span>
           </button>
 
           <div class="secondary-actions">
@@ -220,7 +231,7 @@ import { LikesService } from '../../services/likes.service';
     </div>
   `,
   styles: [`
-    /* Grid View (Default) */
+    /* Base Styles */
     .product-card {
       background: white;
       border: 1px solid #eee;
@@ -231,6 +242,7 @@ import { LikesService } from '../../services/likes.service';
       display: flex;
       flex-direction: column;
       height: 100%;
+      position: relative;
     }
 
     .product-card:hover {
@@ -238,7 +250,6 @@ import { LikesService } from '../../services/likes.service';
       box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
     }
 
-    /* List View */
     .product-card.list-mode {
       flex-direction: row;
       height: auto;
@@ -248,7 +259,7 @@ import { LikesService } from '../../services/likes.service';
     .image-container {
       position: relative;
       width: 100%;
-      padding-top: 75%; /* 4:3 Aspect Ratio */
+      padding-top: 75%;
       overflow: hidden;
       background: #f5f5f5;
     }
@@ -274,6 +285,35 @@ import { LikesService } from '../../services/likes.service';
       transform: scale(1.05);
     }
 
+    /* Auth Overlay */
+    .auth-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.7);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      color: white;
+      font-size: 14px;
+      font-weight: 600;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      z-index: 2;
+    }
+
+    .product-card:hover .auth-overlay {
+      opacity: 1;
+    }
+
+    .auth-overlay i {
+      font-size: 24px;
+    }
+
     /* Stock Badge */
     .stock-badge {
       position: absolute;
@@ -285,6 +325,7 @@ import { LikesService } from '../../services/likes.service';
       border-radius: 12px;
       font-size: 12px;
       font-weight: 600;
+      z-index: 1;
     }
 
     .stock-badge.low-stock {
@@ -362,7 +403,7 @@ import { LikesService } from '../../services/likes.service';
       font-size: 12px;
     }
 
-    /* Description (List View Only) */
+    /* Description */
     .description {
       font-size: 14px;
       color: #666;
@@ -370,7 +411,7 @@ import { LikesService } from '../../services/likes.service';
       margin: 0;
     }
 
-    /* Price Section */
+    /* Price */
     .price-section {
       margin-top: auto;
     }
@@ -484,28 +525,7 @@ import { LikesService } from '../../services/likes.service';
       font-size: 16px;
     }
 
-    /* Tablet Styles (768px - 1024px) */
-    @media (max-width: 1024px) {
-      .list-mode .image-container {
-        width: 180px;
-        height: 180px;
-      }
-
-      .list-mode .product-info {
-        padding: 16px;
-      }
-
-      .list-mode .actions {
-        flex-direction: column;
-        gap: 10px;
-      }
-
-      .list-mode .add-to-cart-btn {
-        width: 100%;
-      }
-    }
-
-    /* Mobile Styles (< 768px) */
+    /* Responsive */
     @media (max-width: 768px) {
       .product-card.list-mode {
         flex-direction: column;
@@ -521,10 +541,6 @@ import { LikesService } from '../../services/likes.service';
         font-size: 16px;
       }
 
-      .list-mode .product-name {
-        font-size: 18px;
-      }
-
       .price {
         font-size: 20px;
       }
@@ -538,52 +554,8 @@ import { LikesService } from '../../services/likes.service';
         width: 100%;
       }
 
-      .details-link span,
-      .list-mode .details-link span {
+      .details-link span {
         display: none;
-      }
-
-      .list-mode .secondary-actions {
-        justify-content: space-between;
-      }
-    }
-
-    /* Small Mobile (< 480px) */
-    @media (max-width: 480px) {
-      .product-info {
-        padding: 12px;
-        gap: 8px;
-      }
-
-      .product-name {
-        font-size: 14px;
-      }
-
-      .price {
-        font-size: 18px;
-      }
-
-      .add-to-cart-btn {
-        padding: 8px 10px;
-        font-size: 12px;
-      }
-
-      .add-to-cart-btn span {
-        display: none;
-      }
-
-      .add-to-cart-btn i {
-        margin: 0;
-      }
-
-      .brand, .category {
-        font-size: 11px;
-        padding: 3px 6px;
-      }
-
-      .stock-badge {
-        font-size: 10px;
-        padding: 3px 8px;
       }
     }
   `]
@@ -592,14 +564,26 @@ export class ProductCard {
   @Input() product!: Product;
   @Input() viewMode: 'grid' | 'list' = 'grid';
 
+  isAddingToCart = false;
+  isAuthenticated = false;
+
   constructor(
     private cartService: CartService,
-    public likesService: LikesService
-  ) {}
-
-  isAddingToCart = false;
+    public likesService: LikesService,
+    private authService: AuthService
+  ) {
+    // Subscribe to auth state
+    this.authService.isAuthenticated$.subscribe(isAuth => {
+      this.isAuthenticated = isAuth;
+    });
+  }
 
   async addToCart() {
+    // Check authentication first
+    if (!this.authService.requireAuth('add items to cart')) {
+      return;
+    }
+
     if (this.isAddingToCart) return;
     
     this.isAddingToCart = true;
@@ -615,6 +599,11 @@ export class ProductCard {
   }
 
   async toggleLike(product: Product) {
+    // Check authentication first
+    if (!this.authService.requireAuth('add items to favorites')) {
+      return;
+    }
+
     try {
       if (this.likesService.isInLikes(product.id)) {
         await this.likesService.removeFromLikes(product.id);

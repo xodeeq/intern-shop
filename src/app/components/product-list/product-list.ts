@@ -1,161 +1,10 @@
-// import { CommonModule } from '@angular/common';
-// import { Component, Input, OnInit, SimpleChanges } from '@angular/core';
-// import { ProductCard } from '../product-card/product-card';
-// import { Product, ProductService } from '../../services/product.services';
-// import { FormsModule } from '@angular/forms';
-// import { CapitalizeAndSpacePipe } from '../../pipes/capitalize-and-space-pipe';
-
-
-// @Component({
-//   selector: 'app-product-list',
-//   standalone: true,
-//   imports: [CommonModule, ProductCard, FormsModule, CapitalizeAndSpacePipe],
-//   template: `
-//     <div class="shop">
-//       <h2>SHOP</h2>
-//     </div>
-    
-//     <div class="this-products">
-//      <select [(ngModel)]="selectedCategory" (change)="filterProducts()">
-//         <option value="all" >All Categories</option>
-//         <option *ngFor="let category of categories" [value]="category">
-//           {{ category | capitalizeAndSpace }}
-//         </option>
-//       </select>
-
-//     <div class="product-list">
-//       <app-product-card
-//         *ngFor="let product of filteredProducts"
-//         [product]="product">
-//       </app-product-card>
-//     </div>
-//     </div>
-//   `,
-//   styles: [`
-//     .shop {
-//   text-align: center;
-//   margin: 20px 0;
-//   font-family: 'Poppins', sans-serif;
-// }
-
-
-// .this-products {
-//   max-width: 1200px;
-//   margin: 0 auto;
-//   padding: 0 20px;
-//   font-family: Arial, sans-serif;
-// }
-
-
-// .this-products select {
-//   display: block;
-//   margin-bottom: 20px;
-//   padding: 8px 12px;
-//   border: 1px solid #ccc;
-//   border-radius: 6px;
-//   font-size: 15px;
-//   font-family: inherit;
-// }
-
-
-// option {
-//   background: #fff;
-//   border: none;
-// }
-
-
-// .product-list {
-//   display: grid;
-//   grid-template-columns: repeat(4, 1fr);
-//   gap: 20px;
-// }
-
-
-// .product-card {
-//   background: white;
-//   border: 1px solid #eee;
-//   border-radius: 8px;
-//   padding: 16px;
-//   text-align: center;
-//   box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-//   transition: transform 0.2s ease;
-// }
-
-// .product-card:hover {
-//   transform: translateY(-4px);
-// }
-
-// .product-card img {
-//   width: 100%;
-//   height: 200px;
-//   object-fit: cover;
-//   border-radius: 6px;
-//   margin-bottom: 12px;
-// }
-
-// .product-card h3 {
-//   font-size: 18px;
-//   margin: 10px 0 5px;
-//   font-weight: 500;
-// }
-
-// .product-card .price {
-//   font-size: 15px;
-//   font-weight: bold;
-//   margin-bottom: 15px;
-//   color: #333;
-// }
-
-// .product-card button {
-//   background-color: #007bff;
-//   color: white;
-//   border: none;
-//   padding: 10px 16px;
-//   border-radius: 4px;
-//   cursor: pointer;
-//   font-size: 14px;
-//   width: 100%;
-// }
-
-// .product-card button:hover {
-//   background-color: #0056b3;
-// }
-
-//   `],
-// })
-// export class ProductList implements OnInit {
-//   @Input() selectedCategory: string = 'all';  // ✅ Step 1: Add this Input
-
-//   products: Product[] = [];
-//   categories: string[] = [];
-//   filteredProducts: Product[] = [];
-
-//   constructor(private productService: ProductService) {
-//     this.products = this.productService.getProduct();
-//   }
-
-//   ngOnInit() {
-//     this.categories = this.productService.getCategories();
-//     this.filterProducts();
-//   }
-
-//   ngOnChanges(changes: SimpleChanges) {   // ✅ Step 2: React when footer updates category
-//     if (changes['selectedCategory']) {
-//       this.filterProducts();
-//     }
-//   }
-
-//   filterProducts() {
-//     this.filteredProducts = this.productService.getProductsByCategory(this.selectedCategory);
-//   }
-// }
-
 import { CommonModule } from '@angular/common';
 import { Component, Input, OnInit, SimpleChanges } from '@angular/core';
 import { ProductCard } from '../product-card/product-card';
 import { Product, ProductService } from '../../services/product.services';
 import { FormsModule } from '@angular/forms';
 import { CapitalizeAndSpacePipe } from '../../pipes/capitalize-and-space-pipe';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-product-list',
@@ -609,24 +458,45 @@ export class ProductList implements OnInit {
   itemsPerPage: number = 8;
   totalPages: number = 1;
 
-  constructor(private productService: ProductService) {}
+  constructor(
+    private productService: ProductService,
+    private route: ActivatedRoute
+  ) {}
 
   async ngOnInit() {
     this.loading = true;
     
     // Subscribe to products
     this.productService.products$.subscribe(products => {
+      console.log('📦 ProductList received products:', products.length);
       this.products = products;
       this.loading = products.length === 0;
       
       if (products.length > 0) {
+        // Get categories and brands
+        this.categories = this.productService.getCategories();
+        this.brands = this.getUniqueBrands();
+        
+        console.log('📂 Categories in product list:', this.categories);
+        console.log('🏷️ Brands in product list:', this.brands);
+        
         this.filterProducts();
       }
     });
 
-    // Get categories and brands
-    this.categories = this.productService.getCategories();
-    this.brands = this.getUniqueBrands();
+    // Listen for query params from URL (for category filtering from footer/header)
+    this.route.queryParams.subscribe(params => {
+      if (params['category']) {
+        this.selectedCategory = params['category'];
+        console.log('🔗 Category from URL:', this.selectedCategory);
+        this.filterProducts();
+      }
+      if (params['search']) {
+        this.searchQuery = params['search'];
+        console.log('🔍 Search from URL:', this.searchQuery);
+        this.filterProducts();
+      }
+    });
     
     // Load saved view mode
     const savedViewMode = localStorage.getItem('viewMode');
@@ -637,11 +507,13 @@ export class ProductList implements OnInit {
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['selectedCategory']) {
+      console.log('🔄 Category changed:', this.selectedCategory);
       this.filterProducts();
     }
   }
 
   onSearchChange() {
+    console.log('🔎 Search query changed:', this.searchQuery);
     this.filterProducts();
   }
 
@@ -673,6 +545,8 @@ export class ProductList implements OnInit {
     this.totalPages = Math.ceil(filtered.length / this.itemsPerPage);
     this.currentPage = 1; // Reset to first page
     this.updatePaginatedProducts();
+    
+    console.log(`✅ Filtered to ${filtered.length} products`);
   }
 
   updatePaginatedProducts() {
@@ -718,7 +592,7 @@ export class ProductList implements OnInit {
   }
 
   getUniqueBrands(): string[] {
-    return [...new Set(this.products.map(p => p.brand))];
+    return [...new Set(this.products.map(p => p.brand))].sort();
   }
 
   resetFilters() {

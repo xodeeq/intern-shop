@@ -7,8 +7,13 @@ export interface User {
   id: string;
   email: string;
   full_name?: string;
-  avatar_url?: string;
   created_at?: string;
+}
+
+export interface AuthResponse {
+  success: boolean;
+  message: string;
+  user?: User;
 }
 
 @Injectable({
@@ -30,85 +35,140 @@ export class AuthService {
   }
 
   private async initializeAuth() {
-    // Check for existing session
-    const { data: { session } } = await this.supabase.client.auth.getSession();
+    console.log('🔧 Initializing authentication...');
     
-    if (session?.user) {
-      console.log('✅ Existing session found for:', session.user.email);
-      this.currentUserSubject.next({
-        id: session.user.id,
-        email: session.user.email || '',
-        full_name: session.user.user_metadata['full_name'],
-        avatar_url: session.user.user_metadata['avatar_url']
-      });
-      this.isAuthenticatedSubject.next(true);
+    // Check for existing session
+    const { data: { user } } = await this.supabase.client.auth.getUser();
+    
+    if (user) {
+      console.log(`✅ Existing session found for: ${user.email}`);
+      await this.loadUserProfile(user.id);
     } else {
       console.log('👤 No existing session - user is guest');
     }
 
     // Listen for auth state changes
-    this.supabase.client.auth.onAuthStateChange((event, session) => {
-      console.log(`🔔 Auth event: ${event}`);
+    this.supabase.client.auth.onAuthStateChange(async (event, session) => {
+      console.log(`🔐 Auth state changed: ${event}`);
       
       if (session?.user) {
-        this.currentUserSubject.next({
-          id: session.user.id,
-          email: session.user.email || '',
-          full_name: session.user.user_metadata['full_name'],
-          avatar_url: session.user.user_metadata['avatar_url']
-        });
-        this.isAuthenticatedSubject.next(true);
+        console.log(`👤 User logged in: ${session.user.email}`);
+        await this.loadUserProfile(session.user.id);
       } else {
+        console.log('👋 User logged out');
         this.currentUserSubject.next(null);
         this.isAuthenticatedSubject.next(false);
       }
     });
   }
 
-  // Sign Up
-  async signUp(email: string, password: string, fullName?: string): Promise<{ success: boolean; message: string }> {
-    console.log(`📝 Attempting to sign up: ${email}`);
+  private async loadUserProfile(userId: string) {
+    try {
+      // Add a small delay to ensure trigger has completed
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      const { data, error } = await this.supabase.client
+        .from('users')
+        .select('*')
+        .eq('id', userId)
+        .single();
+
+      if (error) {
+        console.error('❌ Failed to load user profile:', error);
+        
+        // If user profile doesn't exist, get basic info from auth
+        const { data: { user } } = await this.supabase.client.auth.getUser();
+        if (user) {
+          const basicUser: User = {
+            id: user.id,
+            email: user.email!,
+            full_name: user.user_metadata?.['full_name']
+          };
+          this.currentUserSubject.next(basicUser);
+          this.isAuthenticatedSubject.next(true);
+        }
+        return;
+      }
+
+      console.log(`✅ User profile loaded: ${data.email}`);
+      this.currentUserSubject.next(data);
+      this.isAuthenticatedSubject.next(true);
+    } catch (error) {
+      console.error('💥 Error loading user profile:', error);
+    }
+  }
+
+  async signUp(email: string, password: string, fullName: string): Promise<AuthResponse> {
+    console.log(`📝 Signing up new user: ${email}`);
     
     try {
-      const { data, error } = await this.supabase.client.auth.signUp({
+      // Create auth user - the database trigger will automatically create the profile
+      const { data: authData, error: authError } = await this.supabase.client.auth.signUp({
         email,
         password,
         options: {
           data: {
-            full_name: fullName || ''
+            full_name: fullName
           }
         }
       });
 
-      if (error) {
-        console.error('❌ Sign up failed:', error.message);
-        return { success: false, message: error.message };
-      }
-
-      if (data.user && data.session) {
-        console.log('✅ Sign up successful! Auto-logged in.');
-        return { 
-          success: true, 
-          message: 'Account created successfully! Welcome aboard!' 
-        };
-      } else if (data.user && !data.session) {
-        console.log('📧 Sign up successful! Please check your email to verify your account.');
-        return { 
-          success: true, 
-          message: 'Please check your email to verify your account.' 
+      if (authError) {
+        console.error('❌ Signup failed:', authError.message);
+        return {
+          success: false,
+          message: authError.message
         };
       }
 
-      return { success: false, message: 'Sign up failed. Please try again.' };
+      if (!authData.user) {
+        return {
+          success: false,
+          message: 'Failed to create user account'
+        };
+      }
+
+      console.log(`✅ Auth user created: ${authData.user.id}`);
+      console.log('⏳ User profile will be created automatically by database trigger');
+
+      // If there's a session, load the user profile
+      if (authData.session) {
+        console.log('✅ User automatically logged in');
+        await this.loadUserProfile(authData.user.id);
+        
+        return {
+          success: true,
+          message: '✅ Account created successfully! Welcome aboard!',
+          user: {
+            id: authData.user.id,
+            email: email,
+            full_name: fullName
+          }
+        };
+      } else {
+        // Email confirmation required
+        console.log('📧 Email confirmation required');
+        return {
+          success: true,
+          message: '📧 Please check your email to verify your account before logging in.',
+          user: {
+            id: authData.user.id,
+            email: email,
+            full_name: fullName
+          }
+        };
+      }
     } catch (error: any) {
-      console.error('💥 Unexpected error during sign up:', error);
-      return { success: false, message: error.message || 'An unexpected error occurred' };
+      console.error('💥 Unexpected signup error:', error);
+      return {
+        success: false,
+        message: 'An unexpected error occurred. Please try again.'
+      };
     }
   }
 
-  // Sign In
-  async signIn(email: string, password: string): Promise<{ success: boolean; message: string }> {
-    console.log(`🔑 Attempting to sign in: ${email}`);
+  async signIn(email: string, password: string): Promise<AuthResponse> {
+    console.log(`🔑 Signing in user: ${email}`);
     
     try {
       const { data, error } = await this.supabase.client.auth.signInWithPassword({
@@ -117,96 +177,101 @@ export class AuthService {
       });
 
       if (error) {
-        console.error('❌ Sign in failed:', error.message);
-        return { success: false, message: error.message };
+        console.error('❌ Login failed:', error.message);
+        return {
+          success: false,
+          message: error.message === 'Invalid login credentials' 
+            ? '❌ Invalid email or password' 
+            : error.message
+        };
       }
 
-      if (data.user && data.session) {
-        console.log('✅ Sign in successful!');
-        this.router.navigate(['/']);
-        return { success: true, message: 'Welcome back!' };
+      if (!data.user) {
+        return {
+          success: false,
+          message: 'Login failed. Please try again.'
+        };
       }
 
-      return { success: false, message: 'Sign in failed. Please try again.' };
+      console.log(`✅ User logged in: ${data.user.email}`);
+      await this.loadUserProfile(data.user.id);
+
+      // Check for redirect URL
+      const redirectUrl = localStorage.getItem('redirectUrl');
+      if (redirectUrl) {
+        console.log(`🔄 Redirecting to: ${redirectUrl}`);
+        localStorage.removeItem('redirectUrl');
+        setTimeout(() => {
+          this.router.navigate([redirectUrl]);
+        }, 1000);
+      }
+
+      return {
+        success: true,
+        message: '✅ Welcome back!',
+        user: {
+          id: data.user.id,
+          email: data.user.email!,
+          full_name: data.user.user_metadata?.['full_name']
+        }
+      };
     } catch (error: any) {
-      console.error('💥 Unexpected error during sign in:', error);
-      return { success: false, message: error.message || 'An unexpected error occurred' };
+      console.error('💥 Unexpected login error:', error);
+      return {
+        success: false,
+        message: 'An unexpected error occurred. Please try again.'
+      };
     }
   }
 
-  // Sign Out
   async signOut(): Promise<void> {
-    console.log('👋 Signing out...');
+    console.log('👋 Signing out user...');
     
     try {
       const { error } = await this.supabase.client.auth.signOut();
       
       if (error) {
-        console.error('❌ Sign out failed:', error);
+        console.error('❌ Signout failed:', error);
         throw error;
       }
 
-      console.log('✅ Signed out successfully');
+      console.log('✅ User signed out successfully');
+      this.currentUserSubject.next(null);
+      this.isAuthenticatedSubject.next(false);
+      
+      // Clear any stored data
+      localStorage.removeItem('cart');
+      localStorage.removeItem('likes');
+      
+      // Redirect to login
       this.router.navigate(['/login']);
     } catch (error) {
-      console.error('💥 Error during sign out:', error);
+      console.error('💥 Error signing out:', error);
     }
   }
 
-  // Reset Password
-  async resetPassword(email: string): Promise<{ success: boolean; message: string }> {
-    console.log(`📧 Sending password reset email to: ${email}`);
-    
-    try {
-      const { error } = await this.supabase.client.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/reset-password`
-      });
-
-      if (error) {
-        console.error('❌ Password reset failed:', error.message);
-        return { success: false, message: error.message };
-      }
-
-      console.log('✅ Password reset email sent');
-      return { 
-        success: true, 
-        message: 'Password reset email sent! Please check your inbox.' 
-      };
-    } catch (error: any) {
-      console.error('💥 Unexpected error during password reset:', error);
-      return { success: false, message: error.message || 'An unexpected error occurred' };
-    }
-  }
-
-  // Update Password
-  async updatePassword(newPassword: string): Promise<{ success: boolean; message: string }> {
-    console.log('🔒 Updating password...');
-    
-    try {
-      const { error } = await this.supabase.client.auth.updateUser({
-        password: newPassword
-      });
-
-      if (error) {
-        console.error('❌ Password update failed:', error.message);
-        return { success: false, message: error.message };
-      }
-
-      console.log('✅ Password updated successfully');
-      return { success: true, message: 'Password updated successfully!' };
-    } catch (error: any) {
-      console.error('💥 Unexpected error during password update:', error);
-      return { success: false, message: error.message || 'An unexpected error occurred' };
-    }
-  }
-
-  // Get Current User
   getCurrentUser(): User | null {
     return this.currentUserSubject.value;
   }
 
-  // Check if user is authenticated
   isAuthenticated(): boolean {
     return this.isAuthenticatedSubject.value;
+  }
+
+  // Helper method to check auth before actions
+  requireAuth(actionName: string = 'perform this action'): boolean {
+    if (!this.isAuthenticated()) {
+      alert(`⚠️ Please login to ${actionName}`);
+      
+      // Store current URL for redirect after login
+      const currentUrl = this.router.url;
+      if (currentUrl !== '/login' && currentUrl !== '/register') {
+        localStorage.setItem('redirectUrl', currentUrl);
+      }
+      
+      this.router.navigate(['/login']);
+      return false;
+    }
+    return true;
   }
 }
